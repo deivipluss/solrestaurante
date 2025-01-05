@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root variables for theme colors */
+:root {
+  --background: #ffffff;  /* Background color for light mode */
+  --foreground: #171717;  /* Text color for light mode */
+  --primary: #FFD700;  /* Golden accent color */
+  --secondary: #333333;  /* Dark secondary color */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;  /* Background color for dark mode */
+    --foreground: #ededed;  /* Text color for dark mode */
+    --primary: #FFD700;  /* Golden accent color for dark mode */
+    --secondary: #b3b3b3;  /* Secondary dark mode color */
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Inter', sans-serif;  /* Use a clean and modern font */
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Dancing Script', cursive;  /* Elegant font for headings */
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  background-color: var(--primary);
+  color: var(--background);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 0.375rem;
+}
+
+button:hover {
+  background-color: var(--secondary);
+}
+
+/* Tailwind utility enhancements */
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
+/* For responsive design */
+@media (max-width: 768px) {
+  body {
+    font-size: 1rem;  /* Adjust font size for mobile */
+  }
+}
