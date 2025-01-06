@@ -12,8 +12,7 @@ import {
   MapPin,
   Phone,
   Star,
-  ArrowRight,
-} from "lucide-react";
+  } from "lucide-react";
 import Image from "next/image";
 
 const testimonials = [
