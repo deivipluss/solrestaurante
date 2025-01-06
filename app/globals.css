@@ -2,163 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Font Imports - Add these if not already in your HTML */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Dancing+Script:wght@400;700&display=swap');
-
-/* Root variables for theme colors - Light Mode Default */
-:root {
-  /* Core colors */
-  --background: 255 255 255;  /* White */
-  --foreground: 23 23 23;    /* Near black */
-  --primary: 255 215 0;      /* Golden */
-  --secondary: 51 51 51;     /* Dark gray */
-  
-  /* Additional semantic colors */
-  --muted: 245 245 245;
-  --muted-foreground: 115 115 115;
-  --accent: 255 223 51;      /* Lighter gold */
-  --accent-foreground: 23 23 23;
-  
-  /* Interactive states */
-  --hover: 243 244 246;
-  --active: 229 231 235;
-  
-  /* Feedback colors */
-  --success: 34 197 94;
-  --warning: 234 179 8;
-  --error: 239 68 68;
-  
-  /* Surface colors */
-  --card: 255 255 255;
-  --card-foreground: 23 23 23;
-  --popover: 255 255 255;
-  --popover-foreground: 23 23 23;
-}
-
-/* Dark mode color scheme */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Core colors - Dark mode */
-    --background: 10 10 10;     /* Near black */
-    --foreground: 237 237 237;  /* Off white */
-    --primary: 255 215 0;       /* Keep gold */
-    --secondary: 179 179 179;   /* Light gray */
-    
-    /* Additional semantic colors - Dark mode */
-    --muted: 39 39 42;
-    --muted-foreground: 161 161 170;
-    --accent: 255 223 51;       /* Keep lighter gold */
-    --accent-foreground: 250 250 250;
-    
-    /* Interactive states - Dark mode */
-    --hover: 39 39 42;
-    --active: 63 63 70;
-    
-    /* Surface colors - Dark mode */
-    --card: 24 24 27;
-    --card-foreground: 250 250 250;
-    --popover: 24 24 27;
-    --popover-foreground: 250 250 250;
-  }
-}
-
 @layer base {
-  /* Base styles */
+  :root {
+    --background: 255 255 255;
+    --foreground: 23 23 23;
+    --primary: 255 215 0;
+    --primary-foreground: 23 23 23;
+    --secondary: 51 51 51;
+    --secondary-foreground: 255 255 255;
+    --muted: 245 245 245;
+    --muted-foreground: 115 115 115;
+    --accent: 255 223 51;
+    --accent-foreground: 23 23 23;
+    --card: 255 255 255;
+    --card-foreground: 23 23 23;
+    --popover: 255 255 255;
+    --popover-foreground: 23 23 23;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 10 10 10;
+      --foreground: 237 237 237;
+      --primary: 255 215 0;
+      --primary-foreground: 23 23 23;
+      --secondary: 179 179 179;
+      --secondary-foreground: 23 23 23;
+      --muted: 39 39 42;
+      --muted-foreground: 161 161 170;
+      --accent: 255 223 51;
+      --accent-foreground: 250 250 250;
+      --card: 24 24 27;
+      --card-foreground: 250 250 250;
+      --popover: 24 24 27;
+      --popover-foreground: 250 250 250;
+    }
+  }
+
   body {
-    @apply bg-background text-foreground min-h-screen antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply text-foreground bg-background;
     font-family: 'Inter', sans-serif;
   }
 
-  /* Typography */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-bold;
     font-family: 'Dancing Script', cursive;
   }
+}
 
-  h1 { @apply text-4xl md:text-5xl lg:text-6xl leading-tight; }
-  h2 { @apply text-3xl md:text-4xl lg:text-5xl leading-tight; }
-  h3 { @apply text-2xl md:text-3xl lg:text-4xl leading-snug; }
-  h4 { @apply text-xl md:text-2xl lg:text-3xl leading-snug; }
-  h5 { @apply text-lg md:text-xl leading-normal; }
-  h6 { @apply text-base md:text-lg leading-normal; }
-
-  /* Links */
-  a {
-    @apply text-primary hover:text-primary/90 transition-colors;
-    text-decoration: none;
-  }
-
-  /* Buttons */
-  button, .button {
-    @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-medium transition-all duration-200;
-  }
-
-  /* Primary Button */
+@layer components {
   .button-primary {
-    @apply bg-primary text-black hover:bg-primary/90 active:bg-primary/80;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-full transition-colors;
   }
 
-  /* Secondary Button */
   .button-secondary {
-    @apply border-2 border-primary text-primary hover:bg-primary hover:text-black 
-           active:bg-primary/90;
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground 
+           px-6 py-3 rounded-full transition-colors;
   }
-}
-
-/* Custom utilities */
-@layer utilities {
-  /* Text colors */
-  .text-primary {
-    color: rgb(var(--primary));
-  }
-
-  .text-secondary {
-    color: rgb(var(--secondary));
-  }
-
-  /* Background colors */
-  .bg-primary {
-    background-color: rgb(var(--primary));
-  }
-
-  .bg-secondary {
-    background-color: rgb(var(--secondary));
-  }
-
-  /* Gradient backgrounds */
-  .bg-gradient-primary {
-    @apply bg-gradient-to-r from-primary/20 to-transparent;
-  }
-
-  /* Animations */
-  .animate-fade-in {
-    @apply transition-opacity duration-300 ease-in-out;
-  }
-
-  /* Interactive elements */
-  .hover-lift {
-    @apply transition-transform duration-200 hover:scale-105;
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  body {
-    @apply text-sm;
-  }
-
-  .button, button {
-    @apply px-4 py-2 text-sm;
-  }
-}
-
-/* Scroll behavior */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Selection styling */
-::selection {
-  @apply bg-primary/30 text-foreground;
 }
