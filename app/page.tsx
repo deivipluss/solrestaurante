@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X, ShoppingCart, Globe, ChevronDown } from "lucide-react";
 import Image from "next/image";
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const { scrollYProgress } = useScroll();
 
   const headerBg = useTransform(
@@ -15,12 +14,6 @@ const HomePage = () => {
     [0, 0.2],
     ["rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.95)"]
   );
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -131,7 +124,7 @@ const HomePage = () => {
               {/* Rating */}
               <div className="flex items-center space-x-2">
                 <div className="flex text-primary">
-                  {"★★★★★".split("").map((star, i) => (
+                  {Array.from("★★★★★").map((star, i) => (
                     <span key={i}>{star}</span>
                   ))}
                 </div>
