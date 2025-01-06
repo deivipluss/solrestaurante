@@ -12,7 +12,7 @@ import {
   MapPin,
   Phone,
   Star,
-  } from "lucide-react";
+} from "lucide-react";
 import Image from "next/image";
 
 const testimonials = [
@@ -362,9 +362,6 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6}}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
