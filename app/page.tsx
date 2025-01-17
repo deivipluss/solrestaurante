@@ -306,7 +306,7 @@ const HomePage = () => {
               className="relative h-[400px] rounded-xl overflow-hidden"
             >
               <Image
-                src="/restaurant-interior.jpg"
+                src="images/restaurant-interior.jpg"
                 alt="Interior del Restaurante"
                 fill
                 className="object-cover"
