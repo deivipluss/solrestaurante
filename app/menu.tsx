@@ -23,7 +23,7 @@ const menuSections: MenuSection[] = [
     items: [
       { name: "Lomo Fino", description: "Jugoso medallón de lomo fino", price: "S/29.00" },
       { name: "Costillas a la barbacoa", description: "Dos riquísimas costillas bañadas en salsa barbacoa", price: "S/26.00" },
-      { name: "Costillas "Sol"", description: "El especial de casa: Riquísimas costillas bañadas en salsa barbacoa + 1/4 de pollo a la brasa", price: "S/29.00" },
+      { name: "Costillas Sol", description: "El especial de casa: Riquísimas costillas bañadas en salsa barbacoa + 1/4 de pollo a la brasa", price: "S/29.00" },
       { name: "Bife", description: "Corte único de res a la parrilla (250g)", price: "S/26.00" },
       { name: "Bife Sol", description: "Corte único de res a la parrilla (250g) + 1/4 de pollo a la brasa", price: "S/32.00" },
       { name: "Chuleta", price: "S/22.00" },
@@ -47,7 +47,7 @@ const menuSections: MenuSection[] = [
       { name: "Lomo saltado mixto", description: "Res y pollo", price: "S/23.00" },
       { name: "Lomo saltado al jugo", price: "S/24.00" },
       { name: "Arroz chaufa de carne", price: "S/22.00" },
-      { name: "Arroz chaufa "Sol"", description: "El especial de casa: chaufa, 1/4 de pollo a la brasa", price: "S/28.00" }
+      { name: "Arroz chaufa Sol", description: "El especial de casa: chaufa, 1/4 de pollo a la brasa", price: "S/28.00" }
     ]
   },
   {
