@@ -13,7 +13,14 @@ const menuSections = [
       { name: "Lomo Fino", description: "Jugoso medallón de lomo fino", price: "S/29.00" },
       { name: "Costillas a la barbacoa", description: "Dos riquísimas costillas bañadas en salsa barbacoa", price: "S/26.00" },
       { name: "Costillas "Sol"", description: "El especial de casa: Riquísimas costillas bañadas en salsa barbacoa + 1/4 de pollo a la brasa", price: "S/29.00" },
-      // Add more items...
+      { name: "Bife", description: "Corte único de res a la parrilla (250g)", price: "S/26.00" },
+      { name: "Bife Sol", description: "Corte único de res a la parrilla (250g) + 1/4 de pollo a la brasa", price: "S/32.00" },
+      { name: "Chuleta", price: "S/22.00" },
+      { name: "Chuletas Sol", description: "1/2 chuleta bañada en salsa barbacoa + 1/4 de pollo a la brasa", price: "S/26.00" },
+      { name: "Bistec a la plancha", price: "S/22.00" },
+      { name: "Bistec a la parrilla", price: "S/22.00" },
+      { name: "Trucha a la Parrilla", price: "S/24.00" },
+      { name: "Parrilla gaucha", description: "Pechuga, bistec y chuleta", price: "S/29.00" }
     ]
   },
   {
@@ -22,10 +29,30 @@ const menuSections = [
       { name: "Milanesa de pollo", price: "S/24.00" },
       { name: "Chicharrón de pollo", description: "Con ensalada", price: "S/24.00" },
       { name: "Bistec de carne de res", description: "Con salsa criolla", price: "S/23.00" },
-      // Add more items...
+      { name: "Bistec apanado", description: "Con salsa criolla", price: "S/23.00" },
+      { name: "Bistec al jugo", description: "Con arroz blanco y papas fritas", price: "S/24.00" },
+      { name: "Saltado de pollo", price: "S/22.00" },
+      { name: "Lomo saltado", price: "S/22.00" },
+      { name: "Lomo saltado mixto", description: "Res y pollo", price: "S/23.00" },
+      { name: "Lomo saltado al jugo", price: "S/24.00" },
+      { name: "Arroz chaufa de carne", price: "S/22.00" },
+      { name: "Arroz chaufa "Sol"", description: "El especial de casa: chaufa, 1/4 de pollo a la brasa", price: "S/28.00" }
     ]
   },
-  // Add more sections...
+  {
+    title: "Pollos a la Brasa",
+    items: [
+      { name: "Un Pollo a la brasa", description: "Con papas crocantes, cremas y ensalada", price: "S/72.00" },
+      { name: "Un Pollo a la brasa para llevar", description: "Con papas crocantes, cremas, gaseosa de 1.5 litros y ensalada", price: "S/74.00" },
+      { name: "Un Pollo a la brasa chaufero", description: "Con papas crocantes, cremas, ensalada y arroz chaufa", price: "S/90.00" },
+      { name: "Medio pollo a la brasa", description: "Con papas crocantes, cremas y ensalada", price: "S/37.00" },
+      { name: "Un cuarto de pollo a la brasa", description: "Con papas crocantes, cremas y ensalada", price: "S/20.00" },
+      { name: "Un octavo de pollo a la brasa", description: "Con papas crocantes, cremas y ensalada", price: "S/18.00" },
+      { name: "Pollo a la brasa anticuchero", description: "1/4 de pollo más un palito de anticucho", price: "S/23.00" },
+      { name: "Pollo a la brasa criollo", description: "1/4 de pollo y un chorizo", price: "S/22.00" },
+      { name: "Pollo a la brasa a la campesina", description: "1/4 de pollo, papas sancochadas, choclo, queso y jamón", price: "S/24.00" }
+    ]
+  }
 ];
 
 const MenuPage = () => {
