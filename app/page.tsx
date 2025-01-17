@@ -37,14 +37,14 @@ const featuredDishes = [
   {
     name: "Pollo a la Brasa",
     description: "Nuestro plato estrella, marinado con especias secretas",
-    image: "/pollo-brasa.jpg",
+    image: "images/pollo-brasa.jpg",
     price: "S/. 65.00",
     portion: "1 Pollo Entero",
   },
   {
     name: "Lomo Saltado Premium",
     description: "Tradicional platillo peruano con cortes selectos",
-    image: "/lomo-saltado.jpg",
+    image: "images/lomo-saltado.jpg",
     price: "S/. 38.00",
     portion: "Porción Personal",
   },
@@ -205,7 +205,7 @@ const HomePage = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent z-10" />
               <Image
-                src="/hero-image.jpg"
+                src="images/hero-image.jpg"
                 alt="Plato Estrella"
                 fill
                 className="object-cover"
