@@ -1,19 +1,12 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { Menu, X, Star, Search } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { menuSections } from './data';
-import { MenuItem, MenuCardProps, MenuSection } from './types';
+import { MenuCardProps, MenuSection } from './types';
 
-// Dynamic import for Framer Motion components to avoid SSR issues
-const motion = dynamic(() => import('framer-motion').then((mod) => mod.motion), { ssr: false });
-const AnimatePresence = dynamic(() => 
-  import('framer-motion').then((mod) => mod.AnimatePresence), 
-  { ssr: false }
-);
 
 const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
   <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100">
