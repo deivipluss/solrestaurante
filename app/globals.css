@@ -18,6 +18,9 @@
     --card-foreground: 23 23 23;
     --popover: 255 255 255;
     --popover-foreground: 23 23 23;
+    --border: 229 231 235;
+    --input: 229 231 235;
+    --ring: 255 215 0;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -36,11 +39,19 @@
       --card-foreground: 250 250 250;
       --popover: 24 24 27;
       --popover-foreground: 250 250 250;
+      --border: 39 39 42;
+      --input: 39 39 42;
+      --ring: 255 215 0;
     }
   }
 
+  * {
+    @apply border-border;
+  }
+
   body {
-    @apply text-foreground bg-background;
+    @apply text-foreground bg-background antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
     font-family: 'Inter', sans-serif;
   }
 
@@ -51,11 +62,43 @@
 
 @layer components {
   .button-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-full transition-colors;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 
+           px-6 py-3 rounded-full transition-colors 
+           focus-visible:outline-none focus-visible:ring-2 
+           focus-visible:ring-ring focus-visible:ring-offset-2;
   }
 
   .button-secondary {
-    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground 
-           px-6 py-3 rounded-full transition-colors;
+    @apply border-2 border-primary text-primary hover:bg-primary 
+           hover:text-primary-foreground px-6 py-3 rounded-full 
+           transition-colors focus-visible:outline-none 
+           focus-visible:ring-2 focus-visible:ring-ring 
+           focus-visible:ring-offset-2;
+  }
+
+  .input-primary {
+    @apply border border-input bg-background px-3 py-2 text-sm
+           ring-offset-background placeholder:text-muted-foreground
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  .card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

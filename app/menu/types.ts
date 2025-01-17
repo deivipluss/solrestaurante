@@ -1,4 +1,3 @@
-// types.ts
 export interface MenuItem {
     name: string;
     description?: string;
@@ -11,4 +10,8 @@ export interface MenuItem {
     title: string;
     description?: string;
     items: MenuItem[];
+  }
+  
+  export interface MenuCardProps {
+    item: MenuItem;
   }
