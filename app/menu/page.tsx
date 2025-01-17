@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Menu, X, Star, Search } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { menuSections } from './data';
 import { MenuCardProps, MenuSection } from './types';
 
