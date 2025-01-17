@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from 'lucide-react';
+import Link from 'next/link';
 
 // Menu data interface definitions
 interface MenuItem {
@@ -83,18 +84,18 @@ const MenuPage: React.FC = () => {
             </div>
 
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="/" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
                 Inicio
-              </a>
-              <a href="#menu" className="text-primary transition-colors">
+              </Link>
+              <Link href="#menu" className="text-primary transition-colors">
                 Menú
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              </Link>
+              <Link href="/nosotros" className="text-muted-foreground hover:text-primary transition-colors">
                 Nosotros
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              </Link>
+              <Link href="/reservas" className="text-muted-foreground hover:text-primary transition-colors">
                 Reservas
-              </a>
+              </Link>
               
               <button className="button-primary">
                 Ordenar Ahora
@@ -122,18 +123,18 @@ const MenuPage: React.FC = () => {
             className="md:hidden bg-background border-t border-muted"
           >
             <div className="px-4 py-2 space-y-1">
-              <a href="/" className="block py-2 text-muted-foreground hover:text-primary">
+              <Link href="/" className="block py-2 text-muted-foreground hover:text-primary">
                 Inicio
-              </a>
-              <a href="#menu" className="block py-2 text-primary">
+              </Link>
+              <Link href="#menu" className="block py-2 text-primary">
                 Menú
-              </a>
-              <a href="#" className="block py-2 text-muted-foreground hover:text-primary">
+              </Link>
+              <Link href="/nosotros" className="block py-2 text-muted-foreground hover:text-primary">
                 Nosotros
-              </a>
-              <a href="#" className="block py-2 text-muted-foreground hover:text-primary">
+              </Link>
+              <Link href="/reservas" className="block py-2 text-muted-foreground hover:text-primary">
                 Reservas
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
