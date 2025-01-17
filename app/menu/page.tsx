@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronRight, Star, Search } from 'lucide-react';
+import { Menu, X, Star, Search } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { menuSections } from './data';
