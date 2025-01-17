@@ -51,7 +51,7 @@ const featuredDishes = [
   {
     name: "Arroz Chaufa Especial",
     description: "Tres sabores: pollo, carne y chancho",
-    image: "/chaufa.jpg",
+    image: "images/chaufa.jpg",
     price: "S/. 42.00",
     portion: "Para Compartir",
   },
