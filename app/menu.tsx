@@ -2,11 +2,22 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, ChevronDown } from 'lucide-react';
-import Image from "next/image";
+import { Menu, X } from 'lucide-react';
+
+// Menu data interface definitions
+interface MenuItem {
+  name: string;
+  description?: string;
+  price: string;
+}
+
+interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
 
 // Menu data
-const menuSections = [
+const menuSections: MenuSection[] = [
   {
     title: "Carnes a la Parrilla",
     items: [
@@ -55,7 +66,7 @@ const menuSections = [
   }
 ];
 
-const MenuPage = () => {
+const MenuPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(menuSections[0].title);
 
@@ -239,4 +250,3 @@ const MenuPage = () => {
 };
 
 export default MenuPage;
-
