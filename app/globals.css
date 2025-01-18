@@ -1,100 +1,84 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --primary-color: #d4af37;
+  --secondary-color: #8b4513;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
 
 @layer base {
-  :root {
-    --background: 255 255 255;
-    --foreground: 23 23 23;
-    --primary: 255 215 0;
-    --primary-foreground: 23 23 23;
-    --secondary: 51 51 51;
-    --secondary-foreground: 255 255 255;
-    --muted: 245 245 245;
-    --muted-foreground: 115 115 115;
-    --accent: 255 223 51;
-    --accent-foreground: 23 23 23;
-    --card: 255 255 255;
-    --card-foreground: 23 23 23;
-    --popover: 255 255 255;
-    --popover-foreground: 23 23 23;
-    --border: 229 231 235;
-    --input: 229 231 235;
-    --ring: 255 215 0;
+  html {
+    font-family: "Roboto", sans-serif;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: 10 10 10;
-      --foreground: 237 237 237;
-      --primary: 255 215 0;
-      --primary-foreground: 23 23 23;
-      --secondary: 179 179 179;
-      --secondary-foreground: 23 23 23;
-      --muted: 39 39 42;
-      --muted-foreground: 161 161 170;
-      --accent: 255 223 51;
-      --accent-foreground: 250 250 250;
-      --card: 24 24 27;
-      --card-foreground: 250 250 250;
-      --popover: 24 24 27;
-      --popover-foreground: 250 250 250;
-      --border: 39 39 42;
-      --input: 39 39 42;
-      --ring: 255 215 0;
-    }
-  }
-
-  body {
-    @apply text-foreground bg-background antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: 'Inter', sans-serif;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Dancing Script', cursive;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Playfair Display", serif;
+    color: #333;
   }
 }
 
 @layer components {
   .button-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 
-           px-6 py-3 rounded-full transition-colors 
-           focus-visible:outline-none focus-visible:ring-2 
-           focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors;
   }
 
   .button-secondary {
-    @apply border-2 border-primary text-primary hover:bg-primary 
-           hover:text-primary-foreground px-6 py-3 rounded-full 
-           transition-colors focus-visible:outline-none 
-           focus-visible:ring-2 focus-visible:ring-ring 
-           focus-visible:ring-offset-2;
-  }
-
-  .input-primary {
-    @apply border bg-background px-3 py-2 text-sm
-           ring-offset-background placeholder:text-muted-foreground
-           focus-visible:outline-none focus-visible:ring-2
-           focus-visible:ring-ring focus-visible:ring-offset-2;
-  }
-
-  .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
-  }
-
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-3 rounded-lg transition-colors;
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.text-primary {
+  color: var(--primary-color);
 }
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.border-primary {
+  border-color: var(--primary-color);
+}
+
+.text-secondary {
+  color: var(--secondary-color);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color);
+}
+
+.border-secondary {
+  border-color: var(--secondary-color);
+}
+
+.font-heading {
+  font-family: "Playfair Display", serif;
+}
+
+.dish-title {
+  color: #333;
+  font-weight: bold;
+}
+
