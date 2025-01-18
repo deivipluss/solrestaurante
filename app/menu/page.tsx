@@ -62,7 +62,7 @@ const MenuPage: React.FC = () => {
     if (filtered.length > 0 && !filtered.some(section => section.title === activeSection)) {
       setActiveSection(filtered[0].title);
     }
-  }, [searchTerm]);
+  }, [searchTerm, activeSection]);
 
   const updateScrollIndicator = () => {
     if (categoryRef.current) {
@@ -285,7 +285,7 @@ const MenuPage: React.FC = () => {
               { name: "Ana R.", comment: "Los platos criollos son auténticos y deliciosos. ¡Altamente recomendado!" }
             ].map((testimonial, index) => (
               <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-                <p className="text-gray-600 mb-4">"{testimonial.comment}"</p>
+                <p className="text-gray-600 mb-4">&ldquo;{testimonial.comment}&rdquo;</p>
                 <p className="font-semibold text-gray-800">- {testimonial.name}</p>
               </div>
             ))}
