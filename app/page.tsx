@@ -2,17 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  Menu,
-  X,
-  ShoppingCart,
-  Globe,
-  ChevronDown,
-  Clock,
-  MapPin,
-  Phone,
-  Star,
-} from "lucide-react";
+import { Menu, X, ShoppingCart, Globe, ChevronDown, Clock, MapPin, Phone, Star } from 'lucide-react';
 import Image from "next/image";
 
 const testimonials = [
@@ -76,12 +66,9 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <motion.header
-        style={{ backgroundColor: headerBg }}
-        className="fixed top-0 left-0 w-full z-50 backdrop-blur-sm"
-      >
+      <header className="fixed top-0 left-0 w-full z-50 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex-shrink-0">
@@ -91,32 +78,16 @@ const HomePage = () => {
             </div>
 
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#inicio" className="text-muted-foreground hover:text-primary transition-colors">
-                Inicio
-              </a>
-              <a href="#menu" className="text-muted-foreground hover:text-primary transition-colors">
-                Menú
-              </a>
-              <a href="#nosotros" className="text-muted-foreground hover:text-primary transition-colors">
-                Nosotros
-              </a>
-              <a href="#reservas" className="text-muted-foreground hover:text-primary transition-colors">
-                Reservas
-              </a>
-              
-              <div className="relative group">
-                <button className="flex items-center space-x-1 text-muted-foreground">
-                  <Globe size={20} />
-                  <span>ES</span>
-                  <ChevronDown size={16} />
-                </button>
-              </div>
-
-              <button className="p-2 rounded-full hover:bg-muted/10">
-                <ShoppingCart className="text-muted-foreground" size={24} />
-              </button>
-
-              <button className="button-primary">
+              {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="text-gray-600 hover:text-primary transition-colors"
+                >
+                  {item}
+                </a>
+              ))}
+              <button className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
                 Reservar
               </button>
             </nav>
@@ -124,74 +95,67 @@ const HomePage = () => {
             <button
               className="md:hidden p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menu"
             >
               {isMenuOpen ? (
-                <X className="text-muted-foreground" size={24} />
+                <X className="text-gray-600" size={24} />
               ) : (
-                <Menu className="text-muted-foreground" size={24} />
+                <Menu className="text-gray-600" size={24} />
               )}
             </button>
           </div>
         </div>
 
         {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-background border-t border-muted"
-          >
+          <div className="md:hidden bg-white border-t border-gray-100">
             <div className="px-4 py-2 space-y-1">
-              <a href="#inicio" className="block py-2 text-muted-foreground hover:text-primary">
-                Inicio
-              </a>
-              <a href="#menu" className="block py-2 text-muted-foreground hover:text-primary">
-                Menú
-              </a>
-              <a href="#nosotros" className="block py-2 text-muted-foreground hover:text-primary">
-                Nosotros
-              </a>
-              <a href="#reservas" className="block py-2 text-muted-foreground hover:text-primary">
-                Reservas
-              </a>
+              {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="block py-2 text-gray-600 hover:text-primary"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item}
+                </a>
+              ))}
             </div>
-          </motion.div>
+          </div>
         )}
-      </motion.header>
+      </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen pt-20">
-        <div className="absolute inset-0 bg-[url('/texture-overlay.png')] opacity-5" />
+      <section className="relative min-h-screen pt-24 pb-12 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-8 items-center min-h-[calc(100vh-80px)]">
+          <div className="grid md:grid-cols-2 gap-8 items-center min-h-[calc(100vh-6rem)]">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               className="space-y-8"
             >
-              <h1 className="text-4xl md:text-6xl font-heading">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900">
                 Tradición y Sabor
                 <span className="text-primary block mt-2">Desde 1975</span>
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-gray-600">
                 Maestros del Pollo a la Brasa y Cortes Premium en Cerro de Pasco
               </p>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="flex text-primary">
                   {Array(5).fill(null).map((_, i) => (
                     <Star key={i} fill="currentColor" size={20} />
                   ))}
                 </div>
-                <span className="text-muted-foreground">4.8/5 basado en 1000+ reseñas</span>
+                <span className="text-gray-600">4.8/5 basado en 1000+ reseñas</span>
               </div>
 
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <button className="button-primary">
+                <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
                   Reservar Mesa
                 </button>
-                <button className="button-secondary">
+                <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-3 rounded-lg transition-colors">
                   Ordenar Ahora
                 </button>
               </div>
@@ -203,9 +167,8 @@ const HomePage = () => {
               transition={{ duration: 0.6 }}
               className="relative h-[500px] rounded-2xl overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent z-10" />
               <Image
-                src="images/hero-image.jpg"
+                src="/images/hero-image.jpg"
                 alt="Plato Estrella"
                 fill
                 className="object-cover"
@@ -217,7 +180,7 @@ const HomePage = () => {
       </section>
 
       {/* Featured Dishes */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -244,7 +207,7 @@ const HomePage = () => {
               >
                 <div className="relative h-48">
                   <Image
-                    src={dish.image}
+                    src={dish.image || "/placeholder.svg"}
                     alt={dish.name}
                     fill
                     className="object-cover"
@@ -270,7 +233,7 @@ const HomePage = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-24">
+      <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -317,7 +280,7 @@ const HomePage = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
@@ -358,7 +321,7 @@ const HomePage = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-24">
+      <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
@@ -436,7 +399,7 @@ const HomePage = () => {
       </section>
 
       {/* Reservation Section */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
@@ -522,32 +485,32 @@ const HomePage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card py-12">
+      <footer className="bg-gray-50 py-12 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-xl font-heading text-primary mb-4">Sol de Oro</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-bold text-primary mb-4">Sol de Oro</h3>
+              <p className="text-gray-600">
                 Tradición gastronómica desde 1975, ofreciendo la mejor experiencia culinaria en Cerro de Pasco.
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-heading mb-4">Horario</h4>
-              <ul className="space-y-2 text-muted-foreground">
+              <h4 className="text-lg font-semibold mb-4">Horario</h4>
+              <ul className="space-y-2 text-gray-600">
                 <li>Lunes a Domingo</li>
                 <li>11:30 AM - 10:00 PM</li>
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-heading mb-4">Contacto</h4>
-              <ul className="space-y-2 text-muted-foreground">
+              <h4 className="text-lg font-semibold mb-4">Contacto</h4>
+              <ul className="space-y-2 text-gray-600">
                 <li>Jr. Hilario Cabrera 120</li>
                 <li>Yanacancha, Cerro de Pasco</li>
                 <li>Reservas vía Messenger</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-muted mt-12 pt-8 text-center text-muted-foreground">
+          <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-600">
             <p>&copy; {new Date().getFullYear()} Sol de Oro. Todos los derechos reservados.</p>
           </div>
         </div>
@@ -557,3 +520,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
