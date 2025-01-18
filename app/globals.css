@@ -8,6 +8,7 @@
   --background-end-rgb: 255, 255, 255;
   --primary-color: #d4af37;
   --secondary-color: #8b4513;
+  --soft-yellow: #faf7e7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,5 +81,22 @@ body {
 .dish-title {
   color: #333;
   font-weight: bold;
+}
+
+/* Estilos para el menú principal */
+.main-menu a {
+  @apply text-gray-600 hover:text-primary transition-colors;
+}
+
+.main-menu a:hover {
+  color: var(--primary-color);
+}
+
+.bg-soft-yellow {
+  background-color: var(--soft-yellow);
+}
+
+.bg-gradient-soft-yellow {
+  background: linear-gradient(to bottom right, var(--soft-yellow), #fff5d4);
 }
 

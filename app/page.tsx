@@ -71,7 +71,7 @@ const HomePage = () => {
               </Link>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-8 main-menu">
               {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
                 <Link
                   key={item}
@@ -119,7 +119,7 @@ const HomePage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen pt-24 pb-12 bg-gradient-to-br from-yellow-100 to-yellow-200">
+      <section className="relative min-h-screen pt-24 pb-12 bg-gradient-soft-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8 items-center min-h-[calc(100vh-6rem)]">
             <motion.div
@@ -227,7 +227,7 @@ const HomePage = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-soft-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -315,7 +315,7 @@ const HomePage = () => {
       </section>
 
       {/* Reservation Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gradient-soft-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
