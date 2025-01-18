@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Menu, X, Star, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { menuSections } from './data';
@@ -64,12 +64,29 @@ const MenuPage: React.FC = () => {
     }
   }, [searchTerm]);
 
-  const scrollCategories = (direction: 'left' | 'right') => {
+  const updateScrollIndicator = () => {
     if (categoryRef.current) {
-      const scrollAmount = direction === 'left' ? -200 : 200;
-      categoryRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const { scrollLeft, scrollWidth, clientWidth } = categoryRef.current;
+      const scrollPercentage = (scrollLeft / (scrollWidth - clientWidth)) * 100;
+      const indicator = document.getElementById('scroll-indicator');
+      if (indicator) {
+        indicator.style.width = `${scrollPercentage}%`;
+      }
     }
   };
+
+  useEffect(() => {
+    const categoryElement = categoryRef.current;
+    if (categoryElement) {
+      categoryElement.addEventListener('scroll', updateScrollIndicator);
+      updateScrollIndicator(); // Initial update
+    }
+    return () => {
+      if (categoryElement) {
+        categoryElement.removeEventListener('scroll', updateScrollIndicator);
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -156,7 +173,7 @@ const MenuPage: React.FC = () => {
                   placeholder="Buscar platos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white text-gray-800 placeholder-gray-500"
                 />
               </div>
             </div>
@@ -167,13 +184,6 @@ const MenuPage: React.FC = () => {
       {/* Category Navigation */}
       <nav className="sticky top-16 bg-white z-40 border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <button 
-            onClick={() => scrollCategories('left')} 
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft size={24} />
-          </button>
           <div 
             ref={categoryRef}
             className="flex overflow-x-auto space-x-4 py-4 hide-scrollbar scroll-smooth"
@@ -192,13 +202,9 @@ const MenuPage: React.FC = () => {
               </button>
             ))}
           </div>
-          <button 
-            onClick={() => scrollCategories('right')} 
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
-            aria-label="Scroll right"
-          >
-            <ChevronRight size={24} />
-          </button>
+          <div className="h-1 bg-gray-200 mt-2 rounded-full">
+            <div id="scroll-indicator" className="h-full bg-primary rounded-full transition-all duration-300"></div>
+          </div>
         </div>
       </nav>
 
@@ -226,33 +232,138 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Chef's Recommendations */}
+      <section className="py-12 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Recomendaciones del Chef</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {menuSections.flatMap(section => 
+              section.items.filter(item => item.popular)
+            ).slice(0, 3).map((item, index) => (
+              <MenuCard key={index} item={item} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About Us */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="md:w-1/2 mb-8 md:mb-0">
+              <Image
+                src="/api/placeholder/600/400"
+                alt="Sol de Oro Restaurant"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-lg"
+              />
+            </div>
+            <div className="md:w-1/2 md:pl-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestra Historia</h2>
+              <p className="text-gray-600 mb-6">
+                Desde 1975, Sol de Oro ha sido un ícono de la gastronomía en Cerro de Pasco. 
+                Nuestro compromiso con la calidad y la tradición nos ha convertido en el 
+                destino favorito para quienes buscan experimentar los auténticos sabores de la región.
+              </p>
+              <Link href="/nosotros" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors inline-block">
+                Conoce más sobre nosotros
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-12 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Lo que dicen nuestros clientes</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { name: "María L.", comment: "¡La mejor comida de Cerro de Pasco! El pollo a la brasa es insuperable." },
+              { name: "Juan P.", comment: "Excelente servicio y ambiente acogedor. Siempre regreso por el lomo saltado." },
+              { name: "Ana R.", comment: "Los platos criollos son auténticos y deliciosos. ¡Altamente recomendado!" }
+            ].map((testimonial, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                <p className="text-gray-600 mb-4">"{testimonial.comment}"</p>
+                <p className="font-semibold text-gray-800">- {testimonial.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact and Location */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Visítanos</h2>
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="md:w-1/2 mb-8 md:mb-0">
+              <Image
+                src="/api/placeholder/600/400"
+                alt="Mapa de ubicación"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-lg"
+              />
+            </div>
+            <div className="md:w-1/2 md:pl-12">
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <MapPin className="text-primary mr-2" size={20} />
+                  <p className="text-gray-600">Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco</p>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="text-primary mr-2" size={20} />
+                  <p className="text-gray-600">Lunes a Domingo: 11:30 AM - 10:00 PM</p>
+                </div>
+                <div className="flex items-center">
+                  <Phone className="text-primary mr-2" size={20} />
+                  <p className="text-gray-600">Reservas vía Messenger</p>
+                </div>
+              </div>
+              <div className="mt-6 flex space-x-4">
+                <a href="#" className="text-primary hover:text-primary-dark">
+                  <Instagram size={24} />
+                </a>
+                <a href="#" className="text-primary hover:text-primary-dark">
+                  <Facebook size={24} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-12">
+      <footer className="bg-gray-800 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-xl font-bold text-primary mb-4">Sol de Oro</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold mb-4">Sol de Oro</h3>
+              <p className="text-gray-300">
                 Tradición gastronómica desde 1975, ofreciendo la mejor experiencia culinaria en Cerro de Pasco.
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Horario</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>Lunes a Domingo</li>
-                <li>11:30 AM - 10:00 PM</li>
+              <h4 className="text-lg font-semibold mb-4">Enlaces Rápidos</h4>
+              <ul className="space-y-2">
+                <li><Link href="/" className="text-gray-300 hover:text-white">Inicio</Link></li>
+                <li><Link href="#menu" className="text-gray-300 hover:text-white">Menú</Link></li>
+                <li><Link href="/nosotros" className="text-gray-300 hover:text-white">Nosotros</Link></li>
+                <li><Link href="/reservas" className="text-gray-300 hover:text-white">Reservas</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">Contacto</h4>
-              <ul className="space-y-2 text-gray-600">
+              <ul className="space-y-2 text-gray-300">
                 <li>Jr. Hilario Cabrera 120</li>
                 <li>Yanacancha, Cerro de Pasco</li>
                 <li>Reservas vía Messenger</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-600">
+          <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-300">
             <p>&copy; {new Date().getFullYear()} Sol de Oro, Todos los derechos reservados.</p>
           </div>
         </div>
