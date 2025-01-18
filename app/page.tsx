@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Menu, X, Clock, MapPin, Phone, Star } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Menu, X, Star } from 'lucide-react';
 import Image from "next/image";
+import Link from "next/link";
 
 const testimonials = [
   {
@@ -27,21 +28,21 @@ const featuredDishes = [
   {
     name: "Pollo a la Brasa",
     description: "Nuestro plato estrella, marinado con especias secretas",
-    image: "images/pollo-brasa.jpg",
+    image: "/images/pollo-brasa.jpg",
     price: "S/. 65.00",
     portion: "1 Pollo Entero",
   },
   {
     name: "Lomo Saltado Premium",
     description: "Tradicional platillo peruano con cortes selectos",
-    image: "images/lomo-saltado.jpg",
+    image: "/images/lomo-saltado.jpg",
     price: "S/. 38.00",
     portion: "Porción Personal",
   },
   {
     name: "Arroz Chaufa Especial",
     description: "Tres sabores: pollo, carne y chancho",
-    image: "images/chaufa.jpg",
+    image: "/images/chaufa.jpg",
     price: "S/. 42.00",
     portion: "Para Compartir",
   },
@@ -49,10 +50,8 @@ const featuredDishes = [
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
@@ -67,20 +66,20 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-heading text-primary">
+              <Link href="/" className="text-2xl font-heading text-primary">
                 Sol de Oro
-              </h1>
+              </Link>
             </div>
 
             <nav className="hidden md:flex items-center space-x-8">
               {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
-                <a
+                <Link
                   key={item}
                   href={`#${item.toLowerCase()}`}
                   className="text-gray-600 hover:text-primary transition-colors"
                 >
                   {item}
-                </a>
+                </Link>
               ))}
               <button className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
                 Reservar
@@ -105,14 +104,14 @@ const HomePage = () => {
           <div className="md:hidden bg-white border-t border-gray-100">
             <div className="px-4 py-2 space-y-1">
               {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
-                <a
+                <Link
                   key={item}
                   href={`#${item.toLowerCase()}`}
                   className="block py-2 text-gray-600 hover:text-primary"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -184,8 +183,8 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-heading mb-4">Nuestras Especialidades</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4">Nuestras Especialidades</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
               Descubre los sabores que nos han hecho famosos por casi 40 años
             </p>
           </motion.div>
@@ -198,7 +197,7 @@ const HomePage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className="bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
               >
                 <div className="relative h-48">
                   <Image
@@ -209,14 +208,14 @@ const HomePage = () => {
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-heading mb-2">{dish.name}</h3>
-                  <p className="text-muted-foreground mb-4">{dish.description}</p>
+                  <h3 className="text-xl font-bold mb-2">{dish.name}</h3>
+                  <p className="text-gray-600 mb-4">{dish.description}</p>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-primary font-bold">{dish.price}</p>
-                      <p className="text-sm text-muted-foreground">{dish.portion}</p>
+                      <p className="text-sm text-gray-500">{dish.portion}</p>
                     </div>
-                    <button className="button-secondary py-2">
+                    <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg transition-colors">
                       Ordenar
                     </button>
                   </div>
@@ -238,20 +237,20 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-4xl font-heading">Nuestra Historia</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-4xl font-bold">Nuestra Historia</h2>
+              <p className="text-gray-600">
                 Desde 1975, Sol de Oro ha sido sinónimo de excelencia culinaria en Cerro de Pasco.
                 Nuestro compromiso con la calidad y la tradición nos ha convertido en un ícono
                 gastronómico de la región.
               </p>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-3xl font-heading text-primary">40+</p>
-                  <p className="text-muted-foreground">Años de Experiencia</p>
+                  <p className="text-3xl font-bold text-primary">40+</p>
+                  <p className="text-gray-600">Años de Experiencia</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-heading text-primary">1M+</p>
-                  <p className="text-muted-foreground">Clientes Satisfechos</p>
+                  <p className="text-3xl font-bold text-primary">1M+</p>
+                  <p className="text-gray-600">Clientes Satisfechos</p>
                 </div>
               </div>
             </motion.div>
@@ -264,7 +263,7 @@ const HomePage = () => {
               className="relative h-[400px] rounded-xl overflow-hidden"
             >
               <Image
-                src="images/restaurant-interior.jpg"
+                src="/images/restaurant-interior.jpg"
                 alt="Interior del Restaurante"
                 fill
                 className="object-cover"
@@ -284,7 +283,7 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-heading mb-4">Lo Que Dicen Nuestros Clientes</h2>
+            <h2 className="text-4xl font-bold mb-4">Lo Que Dicen Nuestros Clientes</h2>
           </motion.div>
 
           <div className="relative h-[200px]">
@@ -307,7 +306,7 @@ const HomePage = () => {
                       <Star key={i} className="text-primary" fill="currentColor" size={20} />
                     ))}
                   </div>
-                  <p className="font-heading text-lg">{testimonial.name}</p>
+                  <p className="font-bold text-lg">{testimonial.name}</p>
                 </div>
               </motion.div>
             ))}
@@ -326,26 +325,17 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-4xl font-heading">Contáctanos</h2>
+              <h2 className="text-4xl font-bold">Contáctanos</h2>
               <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <MapPin className="text-primary" size={24} />
-                  <p className="text-muted-foreground">
-                    Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Clock className="text-primary" size={24} />
-                  <p className="text-muted-foreground">
-                    Lunes a Domingo: 11:30 AM - 10:00 PM
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Phone className="text-primary" size={24} />
-                  <p className="text-muted-foreground">
-                    Reservas vía Messenger
-                  </p>
-                </div>
+                <p className="text-gray-600">
+                  Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco
+                </p>
+                <p className="text-gray-600">
+                  Lunes a Domingo: 11:30 AM - 10:00 PM
+                </p>
+                <p className="text-gray-600">
+                  Reservas vía Messenger
+                </p>
               </div>
             </motion.div>
 
@@ -358,34 +348,34 @@ const HomePage = () => {
             >
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
                     Nombre
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
                     Email
                   </label>
                   <input
                     type="email"
-                    className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Mensaje
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
-              <button type="submit" className="button-primary w-full">
+              <button type="submit" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors w-full">
                 Enviar Mensaje
               </button>
             </motion.form>
@@ -403,8 +393,8 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-heading mb-4">Haz tu Reserva</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4">Haz tu Reserva</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
               Reserva tu mesa y disfruta de una experiencia gastronómica única
             </p>
           </motion.div>
@@ -414,35 +404,35 @@ const HomePage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="max-w-2xl mx-auto bg-card rounded-xl shadow-lg p-8"
+            className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8"
           >
             <form className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
                     Fecha
                   </label>
                   <input
                     type="date"
-                    className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
                     Hora
                   </label>
                   <input
                     type="time"
-                    className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary"
+                    className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
                     Personas
                   </label>
-                  <select className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary">
+                  <select className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
                       <option key={num} value={num}>
                         {num} {num === 1 ? 'Persona' : 'Personas'}
@@ -451,10 +441,10 @@ const HomePage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
                     Ocasión
                   </label>
-                  <select className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary">
+                  <select className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary">
                     <option value="regular">Regular</option>
                     <option value="cumpleanos">Cumpleaños</option>
                     <option value="aniversario">Aniversario</option>
@@ -463,15 +453,15 @@ const HomePage = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
                   Solicitudes Especiales
                 </label>
                 <textarea
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg bg-card border border-muted focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
-              <button type="submit" className="button-primary w-full">
+              <button type="submit" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors w-full">
                 Confirmar Reserva
               </button>
             </form>
