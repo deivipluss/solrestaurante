@@ -52,12 +52,7 @@ const HomePage = () => {
   const { scrollYProgress } = useScroll();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  const headerBg = useTransform(
-    scrollYProgress,
-    [0, 0.2],
-    ["rgba(10, 10, 10, 0.8)", "rgba(10, 10, 10, 0.95)"]
-  );
-
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
