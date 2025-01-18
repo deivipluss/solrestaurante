@@ -49,7 +49,7 @@ const featuredDishes = [
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { scrollYProgress } = useScroll();
+  
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   
