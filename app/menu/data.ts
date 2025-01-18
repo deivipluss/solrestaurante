@@ -2,6 +2,79 @@ import { MenuSection } from './types';
 
 export const menuSections: MenuSection[] = [
   {
+    title: "Pollos a la Brasa",
+    description: "Nuestro delicioso pollo a la brasa en diferentes presentaciones",
+    items: [
+      {
+        name: "Un Pollo a la brasa",
+        description: "Con papas crocantes, cremas y ensalada",
+        price: "S/72.00",
+        image: "/api/placeholder/400/300",
+        popular: true
+      },
+      {
+        name: "Un Pollo a la brasa para llevar",
+        description: "Con papas crocantes, cremas, gaseosa de 1.5 litros y ensalada",
+        price: "S/74.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Un Pollo a la brasa chaufero",
+        description: "Con papas crocantes, cremas, ensalada y arroz chaufa",
+        price: "S/90.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Un Pollo a la brasa chaufero para llevar",
+        description: "Con papas crocantes, cremas, ensalada, gaseosa de 1.5 litros y arroz chaufa",
+        price: "S/90.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Medio pollo a la brasa",
+        description: "Con papas crocantes, cremas y ensalada",
+        price: "S/37.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Medio pollo a la brasa para llevar",
+        description: "Con papas crocantes, cremas, gaseosa de un litro y ensalada",
+        price: "S/37.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Un cuarto de pollo a la brasa",
+        description: "Con papas crocantes, cremas y ensalada",
+        price: "S/20.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Un octavo de pollo a la brasa",
+        description: "Con papas crocantes, cremas y ensalada",
+        price: "S/18.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Pollo a la brasa anticuchero",
+        description: "1/4 de pollo más un palito de anticucho",
+        price: "S/23.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Pollo a la brasa criollo",
+        description: "1/4 de pollo y un chorizo",
+        price: "S/22.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Pollo a la brasa a la campesina",
+        description: "1/4 de pollo, papas sancochadas, choclo, queso y jamón",
+        price: "S/24.00",
+        image: "/api/placeholder/400/300"
+      }
+    ]
+  },
+  {
     title: "Carnes a la Parrilla",
     description: "Las mejores carnes seleccionadas, preparadas a la parrilla con maestría",
     items: [
@@ -67,6 +140,30 @@ export const menuSections: MenuSection[] = [
       {
         name: "Trucha a la Parrilla",
         price: "S/24.00",
+        image: "/api/placeholder/400/300"
+      }
+    ]
+  },
+  {
+    title: "Broaster y Salchi's",
+    description: "Deliciosas opciones de pollo broaster y salchipapas",
+    items: [
+      {
+        name: "Un cuarto Pollo broaster",
+        description: "Pechuga de pollo sin hueso, viene con papas crocantes, cremas y ensalada",
+        price: "S/21.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Un octavo de pollo broaster",
+        description: "Pechuga de pollo sin hueso, viene con papas crocantes, cremas y ensaladas",
+        price: "S/19.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Salchipapas",
+        description: "Con hot dog Frankfurt y chorizo",
+        price: "S/18.00",
         image: "/api/placeholder/400/300"
       }
     ]
@@ -223,58 +320,6 @@ export const menuSections: MenuSection[] = [
     ]
   },
   {
-    title: "Sopas",
-    description: "Reconfortantes sopas y caldos para calentar el alma",
-    items: [
-      {
-        name: "Caldo de gallina con presa",
-        price: "S/20.00",
-        image: "/api/placeholder/400/300",
-        popular: true
-      },
-      {
-        name: "Caldo de gallina sin presa",
-        price: "S/17.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Sopa a la minuta",
-        price: "S/18.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Sopa a la criolla",
-        price: "S/20.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Sudado de trucha",
-        price: "S/23.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Sustancia de pollo",
-        price: "S/17.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Sustancia de carne",
-        price: "S/17.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Dieta de pollo",
-        price: "S/17.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Sopa de Kion",
-        price: "S/17.00",
-        image: "/api/placeholder/400/300"
-      }
-    ]
-  },
-  {
     title: "Gustitos",
     description: "Deliciosas especialidades para darse un gusto",
     items: [
@@ -342,141 +387,6 @@ export const menuSections: MenuSection[] = [
         name: "Alitas y muslitos crocantes",
         description: "Con arroz blanco, papa frita, salsa guacamole y ensalada",
         price: "S/26.00",
-        image: "/api/placeholder/400/300"
-      }
-    ]
-  },
-  {
-    title: "Pollos a la Brasa",
-    description: "Nuestro delicioso pollo a la brasa en diferentes presentaciones",
-    items: [
-      {
-        name: "Un Pollo a la brasa",
-        description: "Con papas crocantes, cremas y ensalada",
-        price: "S/72.00",
-        image: "/api/placeholder/400/300",
-        popular: true
-      },
-      {
-        name: "Un Pollo a la brasa para llevar",
-        description: "Con papas crocantes, cremas, gaseosa de 1.5 litros y ensalada",
-        price: "S/74.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Un Pollo a la brasa chaufero",
-        description: "Con papas crocantes, cremas, ensalada y arroz chaufa",
-        price: "S/90.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Un Pollo a la brasa chaufero para llevar",
-        description: "Con papas crocantes, cremas, ensalada, gaseosa de 1.5 litros y arroz chaufa",
-        price: "S/90.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Medio pollo a la brasa",
-        description: "Con papas crocantes, cremas y ensalada",
-        price: "S/37.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Medio pollo a la brasa para llevar",
-        description: "Con papas crocantes, cremas, gaseosa de un litro y ensalada",
-        price: "S/37.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Un cuarto de pollo a la brasa",
-        description: "Con papas crocantes, cremas y ensalada",
-        price: "S/20.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Un octavo de pollo a la brasa",
-        description: "Con papas crocantes, cremas y ensalada",
-        price: "S/18.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Pollo a la brasa anticuchero",
-        description: "1/4 de pollo más un palito de anticucho",
-        price: "S/23.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Pollo a la brasa criollo",
-        description: "1/4 de pollo y un chorizo",
-        price: "S/22.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Pollo a la brasa a la campesina",
-        description: "1/4 de pollo, papas sancochadas, choclo, queso y jamón",
-        price: "S/24.00",
-        image: "/api/placeholder/400/300"
-      }
-    ]
-  },
-  {
-    title: "Broaster y Salchi's",
-    description: "Deliciosas opciones de pollo broaster y salchipapas",
-    items: [
-      {
-        name: "Un cuarto Pollo broaster",
-        description: "Pechuga de pollo sin hueso, viene con papas crocantes, cremas y ensalada",
-        price: "S/21.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Un octavo de pollo broaster",
-        description: "Pechuga de pollo sin hueso, viene con papas crocantes, cremas y ensaladas",
-        price: "S/19.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Salchipapas",
-        description: "Con hot dog Frankfurt y chorizo",
-        price: "S/18.00",
-        image: "/api/placeholder/400/300"
-      }
-    ]
-  },
-  {
-    title: "Truchas",
-    description: "Deliciosas preparaciones con trucha fresca",
-    items: [
-      {
-        name: "Chicharrón de trucha",
-        description: "Con salsa criolla",
-        price: "S/24.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Trucha broaster",
-        price: "S/22.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Trucha frita",
-        description: "Con salsa criolla",
-        price: "S/22.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Trucha en salsa de champiñones",
-        price: "S/24.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Milanesa de trucha",
-        price: "S/23.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "Trucha a la parrilla",
-        price: "S/24.00",
         image: "/api/placeholder/400/300"
       }
     ]
@@ -579,6 +489,96 @@ export const menuSections: MenuSection[] = [
     ]
   },
   {
+    title: "Truchas",
+    description: "Deliciosas preparaciones con trucha fresca",
+    items: [
+      {
+        name: "Chicharrón de trucha",
+        description: "Con salsa criolla",
+        price: "S/24.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Trucha broaster",
+        price: "S/22.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Trucha frita",
+        description: "Con salsa criolla",
+        price: "S/22.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Trucha en salsa de champiñones",
+        price: "S/24.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Milanesa de trucha",
+        price: "S/23.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Trucha a la parrilla",
+        price: "S/24.00",
+        image: "/api/placeholder/400/300"
+      }
+    ]
+  },
+  {
+    title: "Sopas",
+    description: "Reconfortantes sopas y caldos para calentar el alma",
+    items: [
+      {
+        name: "Caldo de gallina con presa",
+        price: "S/20.00",
+        image: "/api/placeholder/400/300",
+        popular: true
+      },
+      {
+        name: "Caldo de gallina sin presa",
+        price: "S/17.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Sopa a la minuta",
+        price: "S/18.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Sopa a la criolla",
+        price: "S/20.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Sudado de trucha",
+        price: "S/23.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Sustancia de pollo",
+        price: "S/17.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Sustancia de carne",
+        price: "S/17.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Dieta de pollo",
+        price: "S/17.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "Sopa de Kion",
+        price: "S/17.00",
+        image: "/api/placeholder/400/300"
+      }
+    ]
+  },
+  {
     title: "Ensaladas",
     description: "Frescas y saludables ensaladas",
     items: [
@@ -610,31 +610,6 @@ export const menuSections: MenuSection[] = [
     ]
   },
   {
-    title: "Para Compartir",
-    description: "Deliciosas opciones para disfrutar en grupo",
-    items: [
-      {
-        name: "Reloj de Campana",
-        description: "Dos octavos de pollo, dos anticuchos, chicharrón de pollo, salsa tártara, alitas y muslitos crocantes, salsa de guacamole, arroz chaufa, lomo saltado, papa frita familiar, gaseosa 1.5lt solo para llevar recomendado para seis personas",
-        price: "S/105.00",
-        image: "/api/placeholder/400/300",
-        popular: true
-      },
-      {
-        name: "Parrilla Familiar 'Sol'",
-        description: "El especial de casa: Bife, chuleta, 1 porción de pancita, 1 porción de mollejas, dos anticuchos, 1/4 de pollo a la brasa, dos filetes de pierna, dos chorizos, dos hotdog's , papas fritas tamaño familiar, , gaseosa 1.5 litros solo para llevar, recomendado para seis personas",
-        price: "S/95.00",
-        image: "/api/placeholder/400/300"
-      },
-      {
-        name: "1/2 Parrilla Sol",
-        description: "Bife, chuleta, 1/2 porción de pancita, 1/2 porción de mollejas, un anticucho, 1/4 de pollo a la brasa, un filete de pierna, un chorizo, un hot dog, una papas fritas de tamaño familiar, gaseosa 1 litro solo para llevar, recomendado para cuatro personas",
-        price: "S/85.00",
-        image: "/api/placeholder/400/300"
-      }
-    ]
-  },
-  {
     title: "Domingos",
     description: "Especialidades disponibles los domingos",
     items: [
@@ -662,6 +637,31 @@ export const menuSections: MenuSection[] = [
       {
         name: "Papa a la huancaína",
         price: "S/14.00",
+        image: "/api/placeholder/400/300"
+      }
+    ]
+  },
+  {
+    title: "Para Compartir",
+    description: "Deliciosas opciones para disfrutar en grupo",
+    items: [
+      {
+        name: "Reloj de Campana",
+        description: "Dos octavos de pollo, dos anticuchos, chicharrón de pollo, salsa tártara, alitas y muslitos crocantes, salsa de guacamole, arroz chaufa, lomo saltado, papa frita familiar, gaseosa 1.5lt solo para llevar recomendado para seis personas",
+        price: "S/105.00",
+        image: "/api/placeholder/400/300",
+        popular: true
+      },
+      {
+        name: "Parrilla Familiar 'Sol'",
+        description: "El especial de casa: Bife, chuleta, 1 porción de pancita, 1 porción de mollejas, dos anticuchos, 1/4 de pollo a la brasa, dos filetes de pierna, dos chorizos, dos hotdog's , papas fritas tamaño familiar, , gaseosa 1.5 litros solo para llevar, recomendado para seis personas",
+        price: "S/95.00",
+        image: "/api/placeholder/400/300"
+      },
+      {
+        name: "1/2 Parrilla Sol",
+        description: "Bife, chuleta, 1/2 porción de pancita, 1/2 porción de mollejas, un anticucho, 1/4 de pollo a la brasa, un filete de pierna, un chorizo, un hot dog, una papas fritas de tamaño familiar, gaseosa 1 litro solo para llevar, recomendado para cuatro personas",
+        price: "S/85.00",
         image: "/api/placeholder/400/300"
       }
     ]

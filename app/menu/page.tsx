@@ -1,11 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Menu, X, Star, Search } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Menu, X, Star, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { menuSections } from './data';
 import { MenuCardProps, MenuSection } from './types';
-
 
 const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
   <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100">
@@ -48,21 +47,29 @@ const MenuPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>(menuSections[0].title);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredSections, setFilteredSections] = useState<MenuSection[]>(menuSections);
+  const categoryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (searchTerm) {
-      const filtered = menuSections.map(section => ({
-        ...section,
-        items: section.items.filter(item =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      })).filter(section => section.items.length > 0);
-      setFilteredSections(filtered);
-    } else {
-      setFilteredSections(menuSections);
+    const filtered = menuSections.map(section => ({
+      ...section,
+      items: section.items.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    })).filter(section => section.items.length > 0);
+    setFilteredSections(filtered);
+
+    if (filtered.length > 0 && !filtered.some(section => section.title === activeSection)) {
+      setActiveSection(filtered[0].title);
     }
   }, [searchTerm]);
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (categoryRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      categoryRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -159,8 +166,18 @@ const MenuPage: React.FC = () => {
 
       {/* Category Navigation */}
       <nav className="sticky top-16 bg-white z-40 border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex overflow-x-auto space-x-4 py-4 hide-scrollbar">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <button 
+            onClick={() => scrollCategories('left')} 
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <div 
+            ref={categoryRef}
+            className="flex overflow-x-auto space-x-4 py-4 hide-scrollbar scroll-smooth"
+          >
             {filteredSections.map((section) => (
               <button
                 key={section.title}
@@ -175,6 +192,13 @@ const MenuPage: React.FC = () => {
               </button>
             ))}
           </div>
+          <button 
+            onClick={() => scrollCategories('right')} 
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
       </nav>
 
@@ -238,3 +262,4 @@ const MenuPage: React.FC = () => {
 };
 
 export default MenuPage;
+
