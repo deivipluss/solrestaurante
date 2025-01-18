@@ -119,7 +119,7 @@ const HomePage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen pt-24 pb-12 bg-gradient-to-br from-primary/5 to-primary/10">
+      <section className="relative min-h-screen pt-24 pb-12 bg-gradient-to-br from-yellow-100 to-yellow-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8 items-center min-h-[calc(100vh-6rem)]">
             <motion.div
@@ -159,7 +159,7 @@ const HomePage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="relative h-[500px] rounded-2xl overflow-hidden"
+              className="relative h-[500px] rounded-2xl overflow-hidden hidden md:block"
             >
               <Image
                 src="/images/hero-image.jpg"
@@ -314,77 +314,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="space-y-6"
-            >
-              <h2 className="text-4xl font-bold text-gray-900">Contáctanos</h2>
-              <div className="space-y-4">
-                <p className="text-xl text-gray-600">
-                  Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco
-                </p>
-                <p className="text-xl text-gray-600">
-                  Lunes a Domingo: 11:30 AM - 10:00 PM
-                </p>
-                <p className="text-xl text-gray-600">
-                  Reservas vía Messenger
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.form
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="space-y-6"
-            >
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Mensaje
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <button type="submit" className="button-primary w-full">
-                Enviar Mensaje
-              </button>
-            </motion.form>
-          </div>
-        </div>
-      </section>
-
       {/* Reservation Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0 }}
