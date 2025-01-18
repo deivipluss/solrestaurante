@@ -81,7 +81,7 @@ const HomePage = () => {
                   {item}
                 </Link>
               ))}
-              <button className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+              <button className="button-primary">
                 Reservar
               </button>
             </nav>
@@ -146,10 +146,10 @@ const HomePage = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                <button className="button-primary">
                   Reservar Mesa
                 </button>
-                <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-3 rounded-lg transition-colors">
+                <button className="button-secondary">
                   Ordenar Ahora
                 </button>
               </div>
@@ -183,8 +183,8 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold mb-4">Nuestras Especialidades</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 text-gray-900">Nuestras Especialidades</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Descubre los sabores que nos han hecho famosos por casi 40 años
             </p>
           </motion.div>
@@ -208,14 +208,14 @@ const HomePage = () => {
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">{dish.name}</h3>
+                  <h3 className="text-xl font-bold mb-2 dish-title">{dish.name}</h3>
                   <p className="text-gray-600 mb-4">{dish.description}</p>
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-primary font-bold">{dish.price}</p>
                       <p className="text-sm text-gray-500">{dish.portion}</p>
                     </div>
-                    <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg transition-colors">
+                    <button className="button-secondary">
                       Ordenar
                     </button>
                   </div>
@@ -237,8 +237,8 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-4xl font-bold">Nuestra Historia</h2>
-              <p className="text-gray-600">
+              <h2 className="text-4xl font-bold text-gray-900">Nuestra Historia</h2>
+              <p className="text-xl text-gray-600">
                 Desde 1975, Sol de Oro ha sido sinónimo de excelencia culinaria en Cerro de Pasco.
                 Nuestro compromiso con la calidad y la tradición nos ha convertido en un ícono
                 gastronómico de la región.
@@ -283,7 +283,7 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold mb-4">Lo Que Dicen Nuestros Clientes</h2>
+            <h2 className="text-4xl font-bold mb-4 text-gray-900">Lo Que Dicen Nuestros Clientes</h2>
           </motion.div>
 
           <div className="relative h-[200px]">
@@ -300,13 +300,13 @@ const HomePage = () => {
                 style={{ display: activeTestimonial === index ? 'block' : 'none' }}
               >
                 <div className="max-w-2xl mx-auto text-center">
-                  <p className="text-xl mb-6">{testimonial.text}</p>
+                  <p className="text-xl mb-6 text-gray-600">{testimonial.text}</p>
                   <div className="flex justify-center space-x-1 mb-4">
                     {Array(testimonial.rating).fill(null).map((_, i) => (
                       <Star key={i} className="text-primary" fill="currentColor" size={20} />
                     ))}
                   </div>
-                  <p className="font-bold text-lg">{testimonial.name}</p>
+                  <p className="font-bold text-lg text-gray-900">{testimonial.name}</p>
                 </div>
               </motion.div>
             ))}
@@ -325,15 +325,15 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-4xl font-bold">Contáctanos</h2>
+              <h2 className="text-4xl font-bold text-gray-900">Contáctanos</h2>
               <div className="space-y-4">
-                <p className="text-gray-600">
+                <p className="text-xl text-gray-600">
                   Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco
                 </p>
-                <p className="text-gray-600">
+                <p className="text-xl text-gray-600">
                   Lunes a Domingo: 11:30 AM - 10:00 PM
                 </p>
-                <p className="text-gray-600">
+                <p className="text-xl text-gray-600">
                   Reservas vía Messenger
                 </p>
               </div>
@@ -375,7 +375,7 @@ const HomePage = () => {
                   className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
-              <button type="submit" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors w-full">
+              <button type="submit" className="button-primary w-full">
                 Enviar Mensaje
               </button>
             </motion.form>
@@ -393,8 +393,8 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold mb-4">Haz tu Reserva</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 text-gray-900">Haz tu Reserva</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Reserva tu mesa y disfruta de una experiencia gastronómica única
             </p>
           </motion.div>
@@ -461,7 +461,7 @@ const HomePage = () => {
                   className="w-full px-4 py-2 rounded-lg bg-white border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
-              <button type="submit" className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors w-full">
+              <button type="submit" className="button-primary w-full">
                 Confirmar Reserva
               </button>
             </form>
@@ -480,14 +480,14 @@ const HomePage = () => {
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Horario</h4>
+              <h4 className="text-lg font-semibold mb-4 text-gray-900">Horario</h4>
               <ul className="space-y-2 text-gray-600">
                 <li>Lunes a Domingo</li>
                 <li>11:30 AM - 10:00 PM</li>
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Contacto</h4>
+              <h4 className="text-lg font-semibold mb-4 text-gray-900">Contacto</h4>
               <ul className="space-y-2 text-gray-600">
                 <li>Jr. Hilario Cabrera 120</li>
                 <li>Yanacancha, Cerro de Pasco</li>
