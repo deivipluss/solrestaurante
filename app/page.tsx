@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Menu, X, ShoppingCart, Globe, ChevronDown, Clock, MapPin, Phone, Star } from 'lucide-react';
+import { Menu, X, Clock, MapPin, Phone, Star } from 'lucide-react';
 import Image from "next/image";
 
 const testimonials = [
