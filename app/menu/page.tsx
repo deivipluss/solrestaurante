@@ -13,7 +13,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
     whileInView={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5 }}
     viewport={{ once: true }}
-    className="bg-gradient-to-br from-white to-amber-50/30 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-amber-100/50"
+    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
   >
     <div className="relative h-48 w-full">
       <Image
@@ -78,8 +78,7 @@ const MenuPage: React.FC = () => {
   }, [searchTerm, activeSection]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-white">
-      {/* Header */}
+    <div className="min-h-screen bg-white">
       <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
@@ -136,13 +135,12 @@ const MenuPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-white border-t border-amber-100"
+            className="md:hidden bg-white border-t border-gray-100"
           >
             <div className="px-4 py-2 space-y-1">
               {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
@@ -162,8 +160,7 @@ const MenuPage: React.FC = () => {
         )}
       </header>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-12 bg-gradient-to-br from-amber-100/50 to-amber-50">
+      <section className="pt-32 pb-12 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -191,7 +188,7 @@ const MenuPage: React.FC = () => {
                   placeholder="Buscar platos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-full border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500"
                 />
               </div>
             </motion.div>
@@ -199,12 +196,11 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Category Navigation */}
-      <nav className="sticky top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-amber-100 shadow-sm">
+      <nav className="sticky top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div 
             ref={categoryRef}
-            className="flex overflow-x-auto space-x-4 py-4 hide-scrollbar scroll-smooth"
+            className="flex overflow-x-auto space-x-4 py-4 category-scroll"
           >
             {filteredSections.map((section) => (
               <motion.button
@@ -215,7 +211,7 @@ const MenuPage: React.FC = () => {
                 className={`px-6 py-2 rounded-full whitespace-nowrap transition-colors ${
                   activeSection === section.title
                     ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
-                    : "bg-amber-50 text-gray-600 hover:bg-amber-100"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 {section.title}
@@ -225,8 +221,7 @@ const MenuPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* Menu Content */}
-      <section id="menu" className="py-12">
+      <section id="menu" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredSections.map((section) => (
             <motion.div
@@ -260,8 +255,7 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Chef's Recommendations */}
-      <section className="py-12 bg-gradient-to-br from-amber-100/50 to-white">
+      <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -284,22 +278,21 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer remains largely the same but with updated styling */}
-      <footer className="bg-gradient-to-br from-gray-900 to-amber-900 text-white py-12">
+      <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-xl font-heading font-bold text-amber-400 mb-4">Sol de Oro</h3>
-              <p className="text-amber-100">
+              <h3 className="text-xl font-heading font-bold text-white mb-4">Sol de Oro</h3>
+              <p className="text-gray-400">
                 Tradición gastronómica desde 1975, ofreciendo la mejor experiencia culinaria en Cerro de Pasco.
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-heading font-semibold mb-4 text-amber-400">Enlaces Rápidos</h4>
+              <h4 className="text-lg font-heading font-semibold mb-4 text-white">Enlaces Rápidos</h4>
               <ul className="space-y-2">
                 {['Inicio', 'Menú', 'Nosotros', 'Reservas'].map((item) => (
                   <li key={item}>
-                    <Link href={`/${item.toLowerCase()}`} className="text-amber-100 hover:text-amber-400 transition-colors">
+                    <Link href={`/${item.toLowerCase()}`} className="text-gray-400 hover:text-white transition-colors">
                       {item}
                     </Link>
                   </li>
@@ -307,26 +300,26 @@ const MenuPage: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-heading font-semibold mb-4 text-amber-400">Contacto</h4>
+              <h4 className="text-lg font-heading font-semibold mb-4 text-white">Contacto</h4>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <MapPin className="text-amber-400" size={20} />
-                  <p className="text-amber-100">Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco</p>
+                  <MapPin className="text-gray-400" size={20} />
+                  <p className="text-gray-400">Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Clock className="text-amber-400" size={20} />
-                  <p className="text-amber-100">Lunes a Domingo: 11:30 AM - 10:00 PM</p>
+                <Clock className="text-gray-400" size={20} />
+                  <p className="text-gray-400">Lunes a Domingo: 11:30 AM - 10:00 PM</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Phone className="text-amber-400" size={20} />
-                  <p className="text-amber-100">Reservas vía Messenger</p>
+                  <Phone className="text-gray-400" size={20} />
+                  <p className="text-gray-400">Reservas vía Messenger</p>
                 </div>
                 <div className="flex space-x-4 mt-6">
                   <motion.a 
                     href="#" 
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="text-amber-400 hover:text-amber-300 transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors"
                   >
                     <Instagram size={24} />
                   </motion.a>
@@ -334,7 +327,7 @@ const MenuPage: React.FC = () => {
                     href="#" 
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="text-amber-400 hover:text-amber-300 transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors"
                   >
                     <Facebook size={24} />
                   </motion.a>
@@ -347,7 +340,7 @@ const MenuPage: React.FC = () => {
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="border-t border-amber-800 mt-12 pt-8 text-center text-amber-200"
+            className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500"
           >
             <p>&copy; {new Date().getFullYear()} Sol de Oro. Todos los derechos reservados.</p>
           </motion.div>
