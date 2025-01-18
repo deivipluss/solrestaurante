@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook } from 'lucide-react';
 import Link from 'next/link';
