@@ -275,22 +275,25 @@ const MenuPage: React.FC = () => {
       <section id="menu" ref={menuRef} className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
-            {filteredSections.map((section) => (
-              <motion.div
-                key={section.title}
-                id={section.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                  {section.items.map((item) => (
-                    <MenuCard key={item.name} item={item} />
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+            {filteredSections.map(
+              (section) =>
+                activeSection === section.title && (
+                  <motion.div
+                    key={section.title}
+                    id={section.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                      {section.items.map((item) => (
+                        <MenuCard key={item.name} item={item} />
+                      ))}
+                    </div>
+                  </motion.div>
+                ),
+            )}
           </AnimatePresence>
         </div>
       </section>
