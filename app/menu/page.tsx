@@ -1,12 +1,12 @@
 "use client"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook } from "lucide-react"
+import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { menuSections } from "./data"
-import type { MenuCardProps, MenuSection } from "./types"
+import type { MenuCardProps, MenuSection, TestimonialProps } from "./types"
 
 const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
   <motion.div
@@ -62,13 +62,26 @@ const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => 
   <motion.div
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="relative h-40 rounded-xl overflow-hidden shadow-lg cursor-pointer"
+    className="relative h-48 md:h-56 rounded-xl overflow-hidden shadow-lg cursor-pointer"
     onClick={onClick}
   >
     <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
-      <h3 className="text-white text-xl font-bold">{title}</h3>
+    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
+      <h3 className="text-white text-2xl font-bold">{title}</h3>
     </div>
+  </motion.div>
+)
+
+const Testimonial: React.FC<TestimonialProps> = ({ text, author }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="bg-white rounded-xl shadow-md p-6 border border-gray-100"
+  >
+    <Quote className="text-amber-500 mb-4" size={32} />
+    <p className="text-gray-700 mb-4 italic">{text}</p>
+    <p className="text-amber-700 font-semibold">{author}</p>
   </motion.div>
 )
 
@@ -182,7 +195,7 @@ const MenuPage: React.FC = () => {
         )}
       </header>
 
-      <section className="pt-32 pb-12 bg-gradient-to-b from-gray-50 to-white">
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -190,12 +203,12 @@ const MenuPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-6xl font-heading font-bold text-gray-900 mb-4">Nuestro Menú</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            <h1 className="text-4xl md:text-6xl font-heading font-bold text-gray-900 mb-6 md:mb-8">Nuestro Menú</h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 md:mb-16">
               Descubre nuestra selección de platos tradicionales y especialidades de la casa
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 md:mb-16">
               <FeaturedCategory
                 title="Pollos a la Brasa"
                 image="/images/pollo-a-la-brasa.jpg"
@@ -204,12 +217,12 @@ const MenuPage: React.FC = () => {
               <FeaturedCategory
                 title="Domingos"
                 image="/images/domingos.jpg"
-                onClick={() => scrollToSection("Domingos")}
+                onClick={() => scrollToSection("Especiales de Domingo")}
               />
               <FeaturedCategory
                 title="Para Compartir"
                 image="/images/para-compartir.jpg"
-                onClick={() => scrollToSection("Para Compartir")}
+                onClick={() => scrollToSection("Platos para Compartir")}
               />
             </div>
 
@@ -217,16 +230,16 @@ const MenuPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="max-w-xl mx-auto"
+              className="max-w-2xl mx-auto"
             >
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-amber-600" size={20} />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600" size={24} />
                 <input
                   type="text"
                   placeholder="Buscar platos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500"
+                  className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500 text-lg shadow-md"
                 />
               </div>
             </motion.div>
@@ -236,14 +249,14 @@ const MenuPage: React.FC = () => {
 
       <nav className="sticky top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div ref={categoryRef} className="flex overflow-x-auto space-x-4 py-4 category-scroll">
+          <div ref={categoryRef} className="flex overflow-x-auto space-x-4 py-6 category-scroll">
             {filteredSections.map((section) => (
               <motion.button
                 key={section.title}
                 onClick={() => setActiveSection(section.title)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`px-6 py-2 rounded-full whitespace-nowrap transition-colors ${
+                className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
                   activeSection === section.title
                     ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
@@ -256,7 +269,7 @@ const MenuPage: React.FC = () => {
         </div>
       </nav>
 
-      <section id="menu" className="py-12 bg-white">
+      <section id="menu" className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
             {filteredSections.map(
@@ -274,10 +287,12 @@ const MenuPage: React.FC = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6 }}
-                      className="mb-12"
+                      className="mb-12 md:mb-16"
                     >
-                      <h2 className="text-3xl font-heading font-bold text-gray-900 mb-2">{section.title}</h2>
-                      {section.description && <p className="text-gray-600">{section.description}</p>}
+                      <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
+                        {section.title}
+                      </h2>
+                      {section.description && <p className="text-xl text-gray-600">{section.description}</p>}
                     </motion.div>
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                       {section.items.map((item) => (
@@ -291,16 +306,19 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-12 bg-gray-50">
+      <section className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-12 md:mb-16"
           >
-            <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">Recomendaciones del Chef</h2>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">Recomendaciones del Chef</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Descubre nuestros platos más populares, cuidadosamente seleccionados por nuestro chef
+            </p>
           </motion.div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {menuSections
@@ -313,17 +331,50 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      <footer className="bg-gray-900 text-gray-300 py-12">
+      <section className="py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 md:mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
+              Testimonios de Nuestros Comensales
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Descubre lo que nuestros clientes dicen sobre su experiencia en Sol de Oro
+            </p>
+          </motion.div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <Testimonial
+              text="La mejor comida peruana que he probado. El pollo a la brasa es simplemente increíble."
+              author="María G."
+            />
+            <Testimonial
+              text="El ambiente es acogedor y el servicio es excelente. Definitivamente volveré."
+              author="Juan P."
+            />
+            <Testimonial
+              text="Los platos para compartir son perfectos para una cena familiar. ¡Altamente recomendado!"
+              author="Ana L."
+            />
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-gray-900 text-gray-300 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-xl font-heading font-bold text-white mb-4">Sol de Oro</h3>
+              <h3 className="text-2xl font-heading font-bold text-white mb-4">Sol de Oro</h3>
               <p className="text-gray-400">
                 Tradición gastronómica desde 1975, ofreciendo la mejor experiencia culinaria en Cerro de Pasco.
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-heading font-semibold mb-4 text-white">Enlaces Rápidos</h4>
+              <h4 className="text-xl font-heading font-semibold mb-4 text-white">Enlaces Rápidos</h4>
               <ul className="space-y-2">
                 {["Inicio", "Menú", "Nosotros", "Reservas"].map((item) => (
                   <li key={item}>
@@ -335,7 +386,7 @@ const MenuPage: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-heading font-semibold mb-4 text-white">Contacto</h4>
+              <h4 className="text-xl font-heading font-semibold mb-4 text-white">Contacto</h4>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <MapPin className="text-gray-400" size={20} />
