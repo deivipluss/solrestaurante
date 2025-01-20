@@ -39,12 +39,12 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
     <div className="p-6">
       <h3 className="text-xl font-heading font-bold mb-2 text-gray-900">{item.name}</h3>
       {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
         <span className="text-amber-700 font-bold text-lg">{item.price}</span>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
+          className="w-full sm:w-auto bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
           onClick={() => console.log(`Ordenar ${item.name}`)}
         >
           Ordenar
@@ -91,6 +91,7 @@ const MenuPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [filteredSections, setFilteredSections] = useState<MenuSection[]>(menuSections)
   const categoryRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const filtered = menuSections
@@ -114,7 +115,9 @@ const MenuPage: React.FC = () => {
     setActiveSection(sectionTitle)
     const sectionElement = document.getElementById(sectionTitle)
     if (sectionElement) {
-      sectionElement.scrollIntoView({ behavior: "smooth" })
+      const yOffset = -100 // Adjust this value to fine-tune the scroll position
+      const y = sectionElement.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: "smooth" })
     }
   }
 
@@ -253,7 +256,7 @@ const MenuPage: React.FC = () => {
             {filteredSections.map((section) => (
               <motion.button
                 key={section.title}
-                onClick={() => setActiveSection(section.title)}
+                onClick={() => scrollToSection(section.title)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
@@ -269,39 +272,25 @@ const MenuPage: React.FC = () => {
         </div>
       </nav>
 
-      <section id="menu" className="py-16 md:py-24 bg-white">
+      <section id="menu" ref={menuRef} className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
-            {filteredSections.map(
-              (section) =>
-                activeSection === section.title && (
-                  <motion.div
-                    key={section.title}
-                    id={section.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6 }}
-                      className="mb-12 md:mb-16"
-                    >
-                      <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
-                        {section.title}
-                      </h2>
-                      {section.description && <p className="text-xl text-gray-600">{section.description}</p>}
-                    </motion.div>
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {section.items.map((item) => (
-                        <MenuCard key={item.name} item={item} />
-                      ))}
-                    </div>
-                  </motion.div>
-                ),
-            )}
+            {filteredSections.map((section) => (
+              <motion.div
+                key={section.title}
+                id={section.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {section.items.map((item) => (
+                    <MenuCard key={item.name} item={item} />
+                  ))}
+                </div>
+              </motion.div>
+            ))}
           </AnimatePresence>
         </div>
       </section>
