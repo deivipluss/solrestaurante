@@ -4,16 +4,16 @@ import { useState, useEffect, useRef } from "react"
 import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { menuSections } from "./data"
 import type { MenuCardProps, MenuSection } from "./types"
 
 const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
     transition={{ duration: 0.5 }}
-    viewport={{ once: true }}
     className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
   >
     <div className="relative h-48 w-full">
@@ -258,34 +258,36 @@ const MenuPage: React.FC = () => {
 
       <section id="menu" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredSections.map((section) => (
-            <motion.div
-              key={section.title}
-              id={section.title}
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: activeSection === section.title ? 1 : 0.5,
-                display: "block",
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className="mb-12"
-              >
-                <h2 className="text-3xl font-heading font-bold text-gray-900 mb-2">{section.title}</h2>
-                {section.description && <p className="text-gray-600">{section.description}</p>}
-              </motion.div>
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {section.items.map((item) => (
-                  <MenuCard key={item.name} item={item} />
-                ))}
-              </div>
-            </motion.div>
-          ))}
+          <AnimatePresence mode="wait">
+            {filteredSections.map(
+              (section) =>
+                activeSection === section.title && (
+                  <motion.div
+                    key={section.title}
+                    id={section.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6 }}
+                      className="mb-12"
+                    >
+                      <h2 className="text-3xl font-heading font-bold text-gray-900 mb-2">{section.title}</h2>
+                      {section.description && <p className="text-gray-600">{section.description}</p>}
+                    </motion.div>
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                      {section.items.map((item) => (
+                        <MenuCard key={item.name} item={item} />
+                      ))}
+                    </div>
+                  </motion.div>
+                ),
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
