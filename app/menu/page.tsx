@@ -204,12 +204,12 @@ const MenuPage: React.FC = () => {
               <FeaturedCategory
                 title="Domingos"
                 image="/images/domingos.jpg"
-                onClick={() => scrollToSection("Especiales de Domingo")}
+                onClick={() => scrollToSection("Domingos")}
               />
               <FeaturedCategory
                 title="Para Compartir"
                 image="/images/para-compartir.jpg"
-                onClick={() => scrollToSection("Platos para Compartir")}
+                onClick={() => scrollToSection("Para Compartir")}
               />
             </div>
 
