@@ -217,12 +217,12 @@ const MenuPage: React.FC = () => {
               <FeaturedCategory
                 title="Domingos"
                 image="/images/domingos.jpg"
-                onClick={() => scrollToSection("Domingos")}
+                onClick={() => scrollToSection("Especiales de Domingo")}
               />
               <FeaturedCategory
                 title="Para Compartir"
                 image="/images/para-compartir.jpg"
-                onClick={() => scrollToSection("Para Compartir")}
+                onClick={() => scrollToSection("Platos para Compartir")}
               />
             </div>
 
@@ -294,7 +294,7 @@ const MenuPage: React.FC = () => {
                       </h2>
                       {section.description && <p className="text-xl text-gray-600">{section.description}</p>}
                     </motion.div>
-                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {section.items.map((item) => (
                         <MenuCard key={item.name} item={item} />
                       ))}
@@ -320,7 +320,7 @@ const MenuPage: React.FC = () => {
               Descubre nuestros platos más populares, cuidadosamente seleccionados por nuestro chef
             </p>
           </motion.div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {menuSections
               .flatMap((section) => section.items.filter((item) => item.popular))
               .slice(0, 3)
@@ -347,7 +347,7 @@ const MenuPage: React.FC = () => {
               Descubre lo que nuestros clientes dicen sobre su experiencia en Sol de Oro
             </p>
           </motion.div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Testimonial
               text="La mejor comida peruana que he probado. El pollo a la brasa es simplemente increíble."
               author="María G."
