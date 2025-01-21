@@ -53,6 +53,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
     </div>
   </motion.div>
 )
+
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
   title,
   image,
@@ -83,6 +84,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ text, author }) => (
     <p className="text-amber-700 font-semibold">{author}</p>
   </motion.div>
 )
+
 const MenuPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [activeSection, setActiveSection] = useState<string>(menuSections[0].title)
@@ -90,6 +92,7 @@ const MenuPage: React.FC = () => {
   const [filteredSections, setFilteredSections] = useState<MenuSection[]>(menuSections)
   const menuSectionRef = useRef<HTMLDivElement>(null)
   const categoryRef = useRef<HTMLDivElement>(null)
+  const chefRecommendationsRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const filtered = menuSections
@@ -114,12 +117,12 @@ const MenuPage: React.FC = () => {
       if (menuSectionRef.current && categoryRef.current) {
         const menuBottom = menuSectionRef.current.getBoundingClientRect().bottom
         const headerHeight = 80 // altura del header
-        categoryRef.current.style.position = menuBottom > headerHeight ? 'sticky' : 'relative'
+        categoryRef.current.style.position = menuBottom > headerHeight ? "sticky" : "relative"
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const scrollToSection = (sectionTitle: string) => {
@@ -129,16 +132,17 @@ const MenuPage: React.FC = () => {
       const categoryHeight = categoryRef.current?.offsetHeight || 0
       const headerHeight = 80 // altura del header
       const offset = headerHeight + categoryHeight
-      
+
       const y = sectionElement.getBoundingClientRect().top + window.pageYOffset - offset
       window.scrollTo({ top: y, behavior: "smooth" })
     }
   }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link href="/" className="flex items-center space-x-2">
               <motion.div
@@ -228,7 +232,7 @@ const MenuPage: React.FC = () => {
 
             {/* Featured Categories Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 md:mb-16">
-            <FeaturedCategory
+              <FeaturedCategory
                 title="Pollos a la Brasa"
                 image="/images/pollo-a-la-brasa.jpg"
                 onClick={() => scrollToSection("Pollos")}
@@ -243,7 +247,7 @@ const MenuPage: React.FC = () => {
                 image="/images/para-compartir.jpg"
                 onClick={() => scrollToSection("Platos para Compartir")}
               />
-            </div>            
+            </div>
 
             {/* Search Bar */}
             <motion.div
@@ -320,8 +324,7 @@ const MenuPage: React.FC = () => {
         </section>
       </div>
 
-      {/* Rest of the sections */}
-      {/* ... [Chef Recommendations, Testimonials, and Footer sections remain the same] ... */}
+      {/* Chef Recommendations Section */}
       <section ref={chefRecommendationsRef} className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -347,6 +350,7 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -380,6 +384,7 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-12">
@@ -453,3 +458,4 @@ const MenuPage: React.FC = () => {
 }
 
 export default MenuPage
+
