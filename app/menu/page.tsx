@@ -92,6 +92,7 @@ const MenuPage: React.FC = () => {
   const [filteredSections, setFilteredSections] = useState<MenuSection[]>(menuSections)
   const categoryRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLElement>(null)
+  const chefRecommendationsRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const filtered = menuSections
@@ -115,7 +116,7 @@ const MenuPage: React.FC = () => {
     setActiveSection(sectionTitle)
     const sectionElement = document.getElementById(sectionTitle)
     if (sectionElement) {
-      const yOffset = -100 // Adjust this value to fine-tune the scroll position
+      const yOffset = -120 // Adjust this value to account for the header and category selector height
       const y = sectionElement.getBoundingClientRect().top + window.pageYOffset + yOffset
       window.scrollTo({ top: y, behavior: "smooth" })
     }
@@ -298,7 +299,7 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section ref={chefRecommendationsRef} className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
