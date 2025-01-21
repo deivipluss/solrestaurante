@@ -37,8 +37,8 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
       )}
     </div>
     <div className="p-6">
-      <h3 className="text-xl font-heading font-bold mb-2 text-gray-900">{item.name}</h3>
-      {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>}
+      <h3 className="text-xl font-heading font-bold mb-2 text-gray-900 line-clamp-1">{item.name}</h3>
+      {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{item.description}</p>}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
         <span className="text-amber-700 font-bold text-lg">{item.price}</span>
         <motion.button
@@ -53,7 +53,6 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => (
     </div>
   </motion.div>
 )
-
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
   title,
   image,
@@ -84,15 +83,13 @@ const Testimonial: React.FC<TestimonialProps> = ({ text, author }) => (
     <p className="text-amber-700 font-semibold">{author}</p>
   </motion.div>
 )
-
 const MenuPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [activeSection, setActiveSection] = useState<string>(menuSections[0].title)
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [filteredSections, setFilteredSections] = useState<MenuSection[]>(menuSections)
+  const menuSectionRef = useRef<HTMLDivElement>(null)
   const categoryRef = useRef<HTMLDivElement>(null)
-  const menuRef = useRef<HTMLElement>(null)
-  const chefRecommendationsRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const filtered = menuSections
@@ -112,20 +109,36 @@ const MenuPage: React.FC = () => {
     }
   }, [searchTerm, activeSection])
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (menuSectionRef.current && categoryRef.current) {
+        const menuBottom = menuSectionRef.current.getBoundingClientRect().bottom
+        const headerHeight = 80 // altura del header
+        categoryRef.current.style.position = menuBottom > headerHeight ? 'sticky' : 'relative'
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const scrollToSection = (sectionTitle: string) => {
     setActiveSection(sectionTitle)
     const sectionElement = document.getElementById(sectionTitle)
-    if (sectionElement) {
-      const yOffset = -120 // Adjust this value to account for the header and category selector height
-      const y = sectionElement.getBoundingClientRect().top + window.pageYOffset + yOffset
+    if (sectionElement && menuSectionRef.current) {
+      const categoryHeight = categoryRef.current?.offsetHeight || 0
+      const headerHeight = 80 // altura del header
+      const offset = headerHeight + categoryHeight
+      
+      const y = sectionElement.getBoundingClientRect().top + window.pageYOffset - offset
       window.scrollTo({ top: y, behavior: "smooth" })
     }
   }
-
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link href="/" className="flex items-center space-x-2">
               <motion.div
@@ -199,6 +212,7 @@ const MenuPage: React.FC = () => {
         )}
       </header>
 
+      {/* Hero Section */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -212,8 +226,9 @@ const MenuPage: React.FC = () => {
               Descubre nuestra selección de platos tradicionales y especialidades de la casa
             </p>
 
+            {/* Featured Categories Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 md:mb-16">
-              <FeaturedCategory
+            <FeaturedCategory
                 title="Pollos a la Brasa"
                 image="/images/pollo-a-la-brasa.jpg"
                 onClick={() => scrollToSection("Pollos")}
@@ -228,8 +243,9 @@ const MenuPage: React.FC = () => {
                 image="/images/para-compartir.jpg"
                 onClick={() => scrollToSection("Platos para Compartir")}
               />
-            </div>
+            </div>            
 
+            {/* Search Bar */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -237,7 +253,7 @@ const MenuPage: React.FC = () => {
               className="max-w-2xl mx-auto"
             >
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600" size={24} />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600/90" size={24} />
                 <input
                   type="text"
                   placeholder="Buscar platos..."
@@ -251,54 +267,61 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      <nav className="sticky top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div ref={categoryRef} className="flex overflow-x-auto space-x-4 py-6 category-scroll">
-            {filteredSections.map((section) => (
-              <motion.button
-                key={section.title}
-                onClick={() => scrollToSection(section.title)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
-                  activeSection === section.title
-                    ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {section.title}
-              </motion.button>
-            ))}
+      {/* Menu Section with Categories and Products */}
+      <div ref={menuSectionRef} className="relative bg-white">
+        {/* Category Navigation */}
+        <nav ref={categoryRef} className="top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="flex overflow-x-auto space-x-4 py-6 category-scroll">
+              {filteredSections.map((section) => (
+                <motion.button
+                  key={section.title}
+                  onClick={() => scrollToSection(section.title)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
+                    activeSection === section.title
+                      ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
+                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {section.title}
+                </motion.button>
+              ))}
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      <section id="menu" ref={menuRef} className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatePresence mode="wait">
-            {filteredSections.map(
-              (section) =>
-                activeSection === section.title && (
-                  <motion.div
-                    key={section.title}
-                    id={section.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                      {section.items.map((item) => (
-                        <MenuCard key={item.name} item={item} />
-                      ))}
-                    </div>
-                  </motion.div>
-                ),
-            )}
-          </AnimatePresence>
-        </div>
-      </section>
+        {/* Products Grid */}
+        <section className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatePresence mode="wait">
+              {filteredSections.map(
+                (section) =>
+                  activeSection === section.title && (
+                    <motion.div
+                      key={section.title}
+                      id={section.title}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                        {section.items.map((item) => (
+                          <MenuCard key={item.name} item={item} />
+                        ))}
+                      </div>
+                    </motion.div>
+                  ),
+              )}
+            </AnimatePresence>
+          </div>
+        </section>
+      </div>
 
+      {/* Rest of the sections */}
+      {/* ... [Chef Recommendations, Testimonials, and Footer sections remain the same] ... */}
       <section ref={chefRecommendationsRef} className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -430,4 +453,3 @@ const MenuPage: React.FC = () => {
 }
 
 export default MenuPage
-
