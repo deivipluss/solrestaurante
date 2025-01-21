@@ -110,6 +110,15 @@ const MenuPage: React.FC = () => {
     if (filtered.length > 0 && !filtered.some((section) => section.title === activeSection)) {
       setActiveSection(filtered[0].title)
     }
+
+    // Scroll to the first found item when searching
+    if (searchTerm && filtered.length > 0) {
+      const firstSection = filtered[0]
+      const sectionElement = document.getElementById(firstSection.title)
+      if (sectionElement) {
+        sectionElement.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }
   }, [searchTerm, activeSection])
 
   useEffect(() => {
@@ -133,13 +142,14 @@ const MenuPage: React.FC = () => {
       const headerHeight = 80 // altura del header
       const offset = headerHeight + categoryHeight
 
-      const y = sectionElement.getBoundingClientRect().top + window.pageYOffset - offset
-      window.scrollTo({ top: y, behavior: "smooth" })
+      // Scroll to the top of the menu section first
+      menuSectionRef.current.scrollIntoView({ behavior: "smooth" })
 
-      // Reiniciar el scroll al inicio de los platos
-      if (menuSectionRef.current) {
-        menuSectionRef.current.scrollIntoView({ behavior: "smooth" })
-      }
+      // Then scroll to the specific section
+      setTimeout(() => {
+        const y = sectionElement.getBoundingClientRect().top + window.pageYOffset - offset
+        window.scrollTo({ top: y, behavior: "smooth" })
+      }, 100) // Small delay to ensure the first scroll is complete
     }
   }
 
