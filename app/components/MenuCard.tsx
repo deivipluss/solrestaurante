@@ -5,6 +5,17 @@ import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
+import { Star } from "lucide-react" // Importa Star desde lucide-react
+
+interface MenuCardProps {
+  item: {
+    name: string
+    description?: string
+    price: string
+    image?: string
+    popular?: boolean
+  }
+}
 
 const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
   const { addToCart } = useCart()
@@ -38,7 +49,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
             animate={{ x: 0 }}
             className="absolute top-2 right-2 bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-900 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg"
           >
-            <Star size={12} className="text-amber-900" />
+            <Star size={12} className="text-amber-900" /> {/* Icono Star */}
             Popular
           </motion.div>
         )}
