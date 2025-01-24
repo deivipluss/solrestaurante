@@ -44,6 +44,29 @@ body {
   background: #b69121;
 }
 
+/* Estilos globales para modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Asegura que el modal esté por encima de todo */
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: 24rem;
+  width: 100%;
+  z-index: 1001; /* Asegura que el contenido del modal esté por encima del overlay */
+}
+
 @layer base {
   html {
     font-family: "Roboto", sans-serif;

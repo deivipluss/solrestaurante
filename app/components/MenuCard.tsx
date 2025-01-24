@@ -82,14 +82,13 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-            onClick={() => setIsQuantityModalOpen(false)} // Cerrar modal al hacer clic fuera
+            className="modal-overlay" // Usa la clase global para el overlay
           >
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
-              className="bg-white rounded-xl w-full max-w-sm p-6"
+              className="modal-content" // Usa la clase global para el contenido del modal
               onClick={(e) => e.stopPropagation()} // Evitar que el modal se cierre al hacer clic dentro
             >
               <h3 className="text-xl font-heading font-bold mb-4">Selecciona la cantidad</h3>
