@@ -2,9 +2,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion" // Importa AnimatePresence
 import { useCart } from "@/app/context/CartContext"
-import Link from "next/link"
 
 const Cart = () => {
   const { cart, removeFromCart, getTotal, clearCart } = useCart()
