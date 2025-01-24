@@ -4,15 +4,15 @@
 import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
-import { useRouter } from "next/navigation" // Para redireccionar al home
+import { useRouter } from "next/navigation"
 
 const Cart = () => {
-  const { cart, removeFromCart, getTotal, clearCart } = useCart()
+  const { cart, removeFromCart, getTotal, clearCart, updateQuantity } = useCart()
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false) // Estado para manejar el mensaje de confirmación
-  const router = useRouter() // Hook para redireccionar
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = () => {
     if (!name || !phone) {
@@ -29,14 +29,14 @@ const Cart = () => {
     const whatsappUrl = `https://wa.me/51987654321?text=${encodedMessage}`
 
     window.open(whatsappUrl, "_blank")
-    setIsSubmitted(true) // Mostrar mensaje de confirmación
+    setIsSubmitted(true)
 
     // Limpiar el carrito y redireccionar después de 5 segundos
     setTimeout(() => {
       clearCart()
       setIsOpen(false)
-      router.push("/") // Redireccionar al home
-    }, 5000) // 5 segundos
+      router.push("/")
+    }, 5000)
   }
 
   // Cerrar el carrito si se hace clic fuera del modal
@@ -65,6 +65,18 @@ const Cart = () => {
         <span className="bg-white text-amber-700 px-2 py-1 rounded-full text-sm">
           {cart.length}
         </span>
+        {/* Botón para vaciar el carrito */}
+        {cart.length > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation() // Evita que el clic se propague al botón principal
+              clearCart()
+            }}
+            className="text-xs text-red-500 hover:text-red-700"
+          >
+            Vaciar
+          </button>
+        )}
       </motion.button>
 
       {/* Modal del carrito */}
@@ -113,12 +125,23 @@ const Cart = () => {
                             {item.quantity} x {item.price}
                           </p>
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item.name)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          Eliminar
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              updateQuantity(item.name, parseInt(e.target.value))
+                            }
+                            className="w-16 p-1 border border-gray-300 rounded-lg text-center"
+                          />
+                          <button
+                            onClick={() => removeFromCart(item.name)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
