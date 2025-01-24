@@ -108,14 +108,24 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
                   +
                 </button>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-3 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
-                onClick={handleAddToCart}
-              >
-                Agregar al carrito
-              </motion.button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-all"
+                  onClick={() => setIsQuantityModalOpen(false)} // Volver a la carta
+                >
+                  Volver a la carta
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-3 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
+                  onClick={handleAddToCart} // Completar pedido
+                >
+                  Completar pedido
+                </motion.button>
+              </div>
             </motion.div>
           </motion.div>
         )}

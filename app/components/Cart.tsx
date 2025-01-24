@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { Trash } from "lucide-react" // Importa Trash para el ícono de vaciar
 
 const Cart = () => {
-  const { cart, removeFromCart, getTotal, clearCart, updateQuantity } = useCart()
+  const { cart, removeFromCart, getTotal, clearCart } = useCart()
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
@@ -123,26 +123,16 @@ const Cart = () => {
                         <div>
                           <h3 className="font-semibold">{item.name}</h3>
                           <p className="text-sm text-gray-600">
-                            {item.quantity} x {item.price}
+                            {item.quantity} x {item.price} = S/
+                            {(parseFloat(item.price.replace("S/", "")) * item.quantity).toFixed(2)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              updateQuantity(item.name, parseInt(e.target.value))
-                            }
-                            className="w-16 p-1 border border-gray-300 rounded-lg text-center"
-                          />
-                          <button
-                            onClick={() => removeFromCart(item.name)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash size={16} /> {/* Ícono de tacho */}
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.name)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash size={16} /> {/* Ícono de tacho */}
+                        </button>
                       </div>
                     ))}
                   </div>
