@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
-import { Star, Trash } from "lucide-react" // Importa Trash para el ícono de vaciar
+import { Star } from "lucide-react" // Importa Star desde lucide-react
 
 interface MenuCardProps {
   item: {
