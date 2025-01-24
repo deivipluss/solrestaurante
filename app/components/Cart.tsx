@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import { useRouter } from "next/navigation"
+import { Trash } from "lucide-react" // Importa Trash para el ícono de vaciar
 
 const Cart = () => {
   const { cart, removeFromCart, getTotal, clearCart, updateQuantity } = useCart()
@@ -65,16 +66,16 @@ const Cart = () => {
         <span className="bg-white text-amber-700 px-2 py-1 rounded-full text-sm">
           {cart.length}
         </span>
-        {/* Botón para vaciar el carrito */}
+        {/* Botón para vaciar el carrito con ícono de tacho */}
         {cart.length > 0 && (
           <button
             onClick={(e) => {
               e.stopPropagation() // Evita que el clic se propague al botón principal
               clearCart()
             }}
-            className="text-xs text-red-500 hover:text-red-700"
+            className="text-red-500 hover:text-red-700"
           >
-            Vaciar
+            <Trash size={16} /> {/* Ícono de tacho */}
           </button>
         )}
       </motion.button>
@@ -139,7 +140,7 @@ const Cart = () => {
                             onClick={() => removeFromCart(item.name)}
                             className="text-red-500 hover:text-red-700"
                           >
-                            Eliminar
+                            <Trash size={16} /> {/* Ícono de tacho */}
                           </button>
                         </div>
                       </div>
