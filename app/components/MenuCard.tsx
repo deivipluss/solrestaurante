@@ -2,8 +2,9 @@
 "use client"
 
 import React, { useState } from "react"
+import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
-import { Star } from "lucide-react"
+import { Star, Trash } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface MenuCardProps {
