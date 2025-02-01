@@ -21,11 +21,16 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
   const { addToCart } = useCart()
   const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
+  const [showConfirmation, setShowConfirmation] = useState(false)
 
   const handleAddToCart = () => {
     addToCart({ name: item.name, price: item.price, quantity })
     setIsQuantityModalOpen(false)
     setQuantity(1)
+    
+    // Animación de confirmación
+    setShowConfirmation(true)
+    setTimeout(() => setShowConfirmation(false), 1000)
   }
 
   return (
@@ -118,11 +123,34 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
               <div className="grid gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center"
+                  whileTap={{ 
+                    scale: 0.98,
+                    backgroundColor: "#d97706"
+                  }}
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center relative overflow-hidden"
                   onClick={handleAddToCart}
                 >
-                  Confirmar pedido
+                  <AnimatePresence initial={false}>
+                    {showConfirmation ? (
+                      <motion.span
+                        key="check"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        className="absolute"
+                      >
+                        ✓
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="text"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        Confirmar pedido
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </motion.button>
                 
                 <button
