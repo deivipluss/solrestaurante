@@ -118,11 +118,12 @@ const MenuPage: React.FC = () => {
                 transition={{ duration: 0.8 }}
               >
                 <Image
-                  src="/api/placeholder/40/40"
+                  src="https://via.placeholder.com/40x40"
                   alt="Sol de Oro Logo"
                   width={40}
                   height={40}
                   className="rounded-full"
+                  unoptimized
                   priority
                 />
               </motion.div>
@@ -319,12 +320,13 @@ const MenuPage: React.FC = () => {
                 >
                   <div className="relative h-64 w-full">
                     <Image
-                      src={item.image || "/api/placeholder/400/300"}
+                      src={item.image || "https://via.placeholder.com/400x300"}
                       alt={item.name}
                       className="object-cover"
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       priority
+                      unoptimized 
                     />
                     <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
                       <Star size={16} className="text-amber-500" />
