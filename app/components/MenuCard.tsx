@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
 import { Star } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion" // Importación corregida
 
 interface MenuCardProps {
   item: {
