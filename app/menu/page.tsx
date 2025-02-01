@@ -1,64 +1,14 @@
 "use client"
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { menuSections } from "./data"
-import type { MenuCardProps, MenuSection, TestimonialProps } from "./types"
-import { useCart } from "@/app/context/CartContext" // Importa el hook useCart
-import Cart from "@/app/components/Cart" // Importa el componente Cart
-
-const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
-  const { addToCart } = useCart() // Usa el hook useCart para acceder a addToCart
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
-    >
-      <div className="relative h-48 w-full">
-        <Image
-          src={item.image || "/api/placeholder/400/300"}
-          alt={item.name}
-          className="object-cover"
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={item.popular}
-        />
-        {item.popular && (
-          <motion.div
-            initial={{ x: 100 }}
-            animate={{ x: 0 }}
-            className="absolute top-2 right-2 bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-900 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg"
-          >
-            <Star size={12} className="text-amber-900" />
-            Popular
-          </motion.div>
-        )}
-      </div>
-      <div className="p-6">
-        <h3 className="text-xl font-heading font-bold mb-2 text-gray-900 line-clamp-1">{item.name}</h3>
-        {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{item.description}</p>}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-          <span className="text-amber-700 font-bold text-lg">{item.price}</span>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full sm:w-auto bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
-            onClick={() => addToCart({ name: item.name, price: item.price, quantity: 1 })}
-          >
-            Ordenar
-          </motion.button>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
+import { TestimonialProps, MenuSection } from "./types"
+import { useCart } from "@/app/context/CartContext"
+import Cart from "@/app/components/Cart"
+import MenuCard from "@/app/components/MenuCard" // Importación corregida
 
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
   title,
@@ -117,7 +67,6 @@ const MenuPage: React.FC = () => {
       setActiveSection(filtered[0].title)
     }
 
-    // Scroll to the first found item when searching
     if (searchTerm && filtered.length > 0) {
       const firstSection = filtered[0]
       const sectionElement = document.getElementById(firstSection.title)
@@ -131,7 +80,7 @@ const MenuPage: React.FC = () => {
     const handleScroll = () => {
       if (menuSectionRef.current && categoryRef.current) {
         const menuBottom = menuSectionRef.current.getBoundingClientRect().bottom
-        const headerHeight = 80 // altura del header
+        const headerHeight = 80
         categoryRef.current.style.position = menuBottom > headerHeight ? "sticky" : "relative"
       }
     }
@@ -145,17 +94,15 @@ const MenuPage: React.FC = () => {
     const sectionElement = document.getElementById(sectionTitle)
     if (sectionElement && menuSectionRef.current) {
       const categoryHeight = categoryRef.current?.offsetHeight || 0
-      const headerHeight = 80 // altura del header
+      const headerHeight = 80
       const offset = headerHeight + categoryHeight
 
-      // Scroll to the top of the menu section first
       menuSectionRef.current.scrollIntoView({ behavior: "smooth" })
 
-      // Then scroll to the specific section
       setTimeout(() => {
         const y = sectionElement.getBoundingClientRect().top + window.pageYOffset - offset
         window.scrollTo({ top: y, behavior: "smooth" })
-      }, 100) // Small delay to ensure the first scroll is complete
+      }, 100)
     }
   }
 
@@ -251,7 +198,6 @@ const MenuPage: React.FC = () => {
               Descubre nuestra selección de platos tradicionales y especialidades de la casa
             </p>
 
-            {/* Featured Categories Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 md:mb-16">
               <FeaturedCategory
                 title="Pollos a la Brasa"
@@ -270,7 +216,6 @@ const MenuPage: React.FC = () => {
               />
             </div>
 
-            {/* Search Bar */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -292,9 +237,8 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Menu Section with Categories and Products */}
+      {/* Menu Section */}
       <div ref={menuSectionRef} className="relative bg-white">
-        {/* Category Navigation */}
         <nav ref={categoryRef} className="top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div className="flex overflow-x-auto space-x-4 py-6 category-scroll">
@@ -317,7 +261,6 @@ const MenuPage: React.FC = () => {
           </div>
         </nav>
 
-        {/* Products Grid */}
         <section className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatePresence mode="wait">
@@ -384,7 +327,7 @@ const MenuPage: React.FC = () => {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       priority
                     />
-                                       <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                    <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
                       <Star size={16} className="text-amber-500" />
                       Recomendado
                     </div>
@@ -514,7 +457,6 @@ const MenuPage: React.FC = () => {
         </div>
       </footer>
 
-      {/* Componente del Carrito */}
       <Cart />
     </div>
   )

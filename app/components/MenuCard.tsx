@@ -4,7 +4,8 @@
 import React, { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
-import { Star } from "lucide-react" // Importa Star desde lucide-react
+import { Star, Trash } from "lucide-react"
+import { motion } from "framer-motion"
 
 interface MenuCardProps {
   item: {
@@ -22,17 +23,20 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
   const [quantity, setQuantity] = useState(1)
 
   const handleAddToCart = () => {
-    addToCart({ name: item.name, price: item.price, quantity: quantity })
-    setIsQuantityModalOpen(false) // Cerrar el modal después de agregar al carrito
-    setQuantity(1) // Reiniciar la cantidad
+    addToCart({ name: item.name, price: item.price, quantity })
+    setIsQuantityModalOpen(false)
+    setQuantity(1)
   }
-
-  console.log("isQuantityModalOpen:", isQuantityModalOpen) // Depuración
 
   return (
     <>
       {/* Tarjeta del producto */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
+      >
         <div className="relative h-48 w-full">
           <Image
             src={item.image || "/api/placeholder/400/300"}
@@ -54,31 +58,37 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
           {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{item.description}</p>}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
             <span className="text-amber-700 font-bold text-lg">{item.price}</span>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
-              onClick={() => setIsQuantityModalOpen(true)} // Abrir modal para seleccionar cantidad
+              onClick={() => setIsQuantityModalOpen(true)}
             >
               Ordenar
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Modal para seleccionar cantidad */}
+      {/* Modal de cantidad */}
       {isQuantityModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[1000]">
-          <div className="bg-white rounded-xl w-full max-w-sm p-6">
+          <motion.div
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            className="bg-white rounded-xl w-full max-w-sm p-6"
+          >
             <h3 className="text-xl font-heading font-bold mb-4">Selecciona la cantidad</h3>
             <div className="flex items-center justify-center gap-4 mb-6">
               <button
-                onClick={() => setQuantity((prev) => (prev > 1 ? prev - 1 : 1))}
+                onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
                 className="bg-gray-100 text-gray-700 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-all"
               >
                 -
               </button>
               <span className="text-2xl font-bold">{quantity}</span>
               <button
-                onClick={() => setQuantity((prev) => prev + 1)}
+                onClick={() => setQuantity(prev => prev + 1)}
                 className="bg-gray-100 text-gray-700 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-all"
               >
                 +
@@ -87,18 +97,20 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-all"
-                onClick={() => setIsQuantityModalOpen(false)} // Volver a la carta
+                onClick={() => setIsQuantityModalOpen(false)}
               >
-                Volver a la carta
+                Volver
               </button>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-3 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
-                onClick={handleAddToCart} // Completar pedido
+                onClick={handleAddToCart}
               >
-                Completar pedido
-              </button>
+                Confirmar ({quantity})
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </>
