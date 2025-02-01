@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
 import { Star } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion" // Importación corregida
+import { motion, AnimatePresence } from "framer-motion"
 
 interface MenuCardProps {
   item: {
@@ -89,7 +89,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
               className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl"
             >
               <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
-                ¿Cuántas unidades?
+                Cantidad a ordenar
               </h3>
               
               <div className="flex items-center justify-between mb-8">
@@ -119,18 +119,17 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2"
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center"
                   onClick={handleAddToCart}
                 >
-                  <span>Agregar</span>
-                  <span className="bg-white/20 px-3 py-1 rounded-md">{quantity}</span>
+                  Confirmar pedido
                 </motion.button>
                 
                 <button
                   className="w-full text-gray-500 hover:text-amber-700 py-3 rounded-xl font-medium transition-colors"
                   onClick={() => setIsQuantityModalOpen(false)}
                 >
-                  Volver al menú
+                  Cancelar
                 </button>
               </div>
             </motion.div>
