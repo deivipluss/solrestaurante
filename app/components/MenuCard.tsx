@@ -44,7 +44,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
       >
         <div className="relative h-48 w-full">
           <Image
-            src={item.image || "/api/placeholder/400/300"}
+            src={item.image || "https://via.placeholder.com/400x300"}
             alt={item.name}
             className="object-cover"
             fill
