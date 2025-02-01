@@ -9,6 +9,7 @@ import { TestimonialProps, MenuSection } from "./types"
 import Cart from "@/app/components/Cart"
 import MenuCard from "@/app/components/MenuCard" // Importación corregida
 
+
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
   title,
   image,
