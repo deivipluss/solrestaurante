@@ -4,7 +4,7 @@
 import React, { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
-import { Star, Trash } from "lucide-react"
+import { Star } from "lucide-react" // Eliminada importación de Trash
 import { motion } from "framer-motion"
 
 interface MenuCardProps {

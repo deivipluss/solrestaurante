@@ -6,7 +6,6 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { menuSections } from "./data"
 import { TestimonialProps, MenuSection } from "./types"
-import { useCart } from "@/app/context/CartContext"
 import Cart from "@/app/components/Cart"
 import MenuCard from "@/app/components/MenuCard" // Importación corregida
 
