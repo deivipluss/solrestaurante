@@ -19,14 +19,14 @@ const Cart = () => {
 
   const handleSubmit = () => {
     if (!name || !phone) {
-      alert("Por favor, ingresa tu nombre y número de WhatsApp.")
+      alert("Por favor, ingresa tu nombre y número de WhatsApp para confirmar tu pedido.")
       return
     }
 
     const total = getTotal()
-    const message = `Hola, soy ${name}. Quiero hacer el siguiente pedido:\n\n${cart
-      .map((item) => `${item.name} - ${item.quantity} x ${item.price}`)
-      .join("\n")}\n\nTotal: S/${total.toFixed(2)}\n\nMi número de contacto es ${phone}.`
+    const message = `¡Hola! Soy ${name} y quiero realizar mi pedido:\n\n${cart
+      .map((item) => `▸ ${item.quantity} x ${item.name} - ${item.price}`)
+      .join("\n")}\n\nTotal: S/${total.toFixed(2)}\n\nMi número de contacto es: ${phone}`
 
     const encodedMessage = encodeURIComponent(message)
     const whatsappUrl = `https://wa.me/51987654321?text=${encodedMessage}`
@@ -44,7 +44,7 @@ const Cart = () => {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      if (isOpen && !target.closest(".cart-modal")) {
+      if (isOpen && !target.closest(".modal-pedido")) {
         setIsOpen(false)
       }
     }
@@ -55,7 +55,7 @@ const Cart = () => {
 
   return (
     <>
-      {/* Botón flotante del carrito mejorado */}
+      {/* Botón flotante del pedido */}
       <motion.button
         key={totalQuantity}
         initial={{ scale: 0.95, y: 10 }}
@@ -98,7 +98,7 @@ const Cart = () => {
         </motion.span>
       </motion.button>
 
-      {/* Modal del carrito */}
+      {/* Modal del pedido */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -111,9 +111,9 @@ const Cart = () => {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
-              className="bg-white rounded-2xl w-full max-w-md p-6 cart-modal shadow-xl"
+              className="bg-white rounded-2xl w-full max-w-md p-6 modal-pedido shadow-xl"
             >
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">Tu Pedido</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">Mi Pedido</h2>
 
               {isSubmitted ? (
                 <div className="text-center space-y-4">
@@ -143,7 +143,7 @@ const Cart = () => {
                 </div>
               ) : cart.length === 0 ? (
                 <p className="text-gray-600 text-center py-8">
-                  Tu carrito está vacío
+                  Aún no has agregado platillos
                 </p>
               ) : (
                 <>
@@ -158,7 +158,7 @@ const Cart = () => {
                         <div>
                           <h3 className="font-semibold text-gray-800">{item.name}</h3>
                           <p className="text-sm text-gray-600">
-                            {item.quantity} x {item.price}
+                            {item.quantity} porciones
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -177,7 +177,7 @@ const Cart = () => {
                   </div>
 
                   <div className="flex justify-between items-center mb-6 px-2">
-                    <span className="font-bold text-lg">Total:</span>
+                    <span className="font-bold text-lg">Total a pagar:</span>
                     <span className="text-2xl font-bold text-amber-700">
                       S/{getTotal().toFixed(2)}
                     </span>
@@ -207,14 +207,14 @@ const Cart = () => {
                       className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all"
                       onClick={handleSubmit}
                     >
-                      Enviar pedido
+                      Confirmar mi pedido
                     </motion.button>
                     
                     <button
                       className="w-full text-gray-600 hover:text-amber-700 py-3 rounded-xl font-medium transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
-                      Seguir comprando
+                      Seguir pidiendo
                     </button>
                     
                     <button
@@ -222,7 +222,7 @@ const Cart = () => {
                       onClick={clearCart}
                     >
                       <Trash size={16} />
-                      Vaciar carrito
+                      Limpiar mi pedido
                     </button>
                   </div>
                 </>
