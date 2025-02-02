@@ -1,7 +1,7 @@
-// app/components/MenuCard.tsx
 "use client"
 
-import React, { useState } from "react"
+import type React from "react"
+import { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
 import { Star } from "lucide-react"
@@ -27,7 +27,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
     addToCart({ name: item.name, price: item.price, quantity })
     setIsQuantityModalOpen(false)
     setQuantity(1)
-    
+
     // Animación de confirmación
     setShowConfirmation(true)
     setTimeout(() => setShowConfirmation(false), 1000)
@@ -44,7 +44,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
       >
         <div className="relative h-48 w-full">
           <Image
-            src={item.image || "https://via.placeholder.com/400x300"}
+            src={item.image || "/placeholder.svg?height=400&width=300"}
             alt={item.name}
             className="object-cover"
             fill
@@ -58,12 +58,10 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
             </div>
           )}
         </div>
-        
+
         <div className="p-5">
           <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">{item.name}</h3>
-          {item.description && (
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{item.description}</p>
-          )}
+          {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{item.description}</p>}
           <div className="flex justify-between items-center">
             <span className="text-lg font-bold text-amber-700">{item.price}</span>
             <motion.button
@@ -93,10 +91,8 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
               exit={{ scale: 0.9 }}
               className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl"
             >
-              <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
-                Cantidad a ordenar
-              </h3>
-              
+              <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Cantidad a ordenar</h3>
+
               <div className="flex items-center justify-between mb-8">
                 <motion.button
                   whileTap={{ scale: 0.9 }}
@@ -105,12 +101,12 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
                 >
                   <span className="text-3xl font-bold text-amber-700">−</span>
                 </motion.button>
-                
+
                 <div className="flex flex-col items-center mx-4">
                   <span className="text-6xl font-bold text-amber-700">{quantity}</span>
                   <span className="text-sm text-gray-500 mt-1">unidades</span>
                 </div>
-                
+
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   className="w-14 h-14 rounded-full bg-amber-100 hover:bg-amber-200 flex items-center justify-center"
@@ -123,9 +119,9 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
               <div className="grid gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{ 
+                  whileTap={{
                     scale: 0.98,
-                    backgroundColor: "#d97706"
+                    backgroundColor: "#d97706",
                   }}
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center relative overflow-hidden"
                   onClick={handleAddToCart}
@@ -142,17 +138,13 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
                         ✓
                       </motion.span>
                     ) : (
-                      <motion.span
-                        key="text"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
+                      <motion.span key="text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         Confirmar pedido
                       </motion.span>
                     )}
                   </AnimatePresence>
                 </motion.button>
-                
+
                 <button
                   className="w-full text-gray-500 hover:text-amber-700 py-3 rounded-xl font-medium transition-colors"
                   onClick={() => setIsQuantityModalOpen(false)}
@@ -169,3 +161,4 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
 }
 
 export default MenuCard
+

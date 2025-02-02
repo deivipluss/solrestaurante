@@ -1,44 +1,22 @@
-// app/components/Cart.tsx
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import { useRouter } from "next/navigation"
 import { Trash } from "lucide-react"
+import PaymentModal from "./PaymentModal"
 
 const Cart = () => {
-  const { cart, removeFromCart, getTotal, clearCart, getTotalQuantity } = useCart()
-  const [isOpen, setIsOpen] = useState(false)
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const { cart, removeFromCart, getTotal, clearCart, getTotalQuantity, isOpen, setIsOpen } = useCart()
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const router = useRouter()
-  
+
   const totalQuantity = getTotalQuantity()
 
-  const handleSubmit = () => {
-    if (!name || !phone) {
-      alert("Por favor, ingresa tu nombre y número de WhatsApp para confirmar tu pedido.")
-      return
-    }
-
-    const total = getTotal()
-    const message = `¡Hola! Soy ${name} y quiero realizar mi pedido:\n\n${cart
-      .map((item) => `▸ ${item.quantity} x ${item.name} - ${item.price}`)
-      .join("\n")}\n\nTotal: S/${total.toFixed(2)}\n\nMi número de contacto es: ${phone}`
-
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/51987654321?text=${encodedMessage}`
-
-    window.open(whatsappUrl, "_blank")
-    setIsSubmitted(true)
-
-    setTimeout(() => {
-      clearCart()
-      setIsOpen(false)
-      router.push("/")
-    }, 5000)
+  const handlePayNow = () => {
+    setIsPaymentModalOpen(true)
+    setIsOpen(false)
   }
 
   useEffect(() => {
@@ -51,7 +29,7 @@ const Cart = () => {
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isOpen])
+  }, [isOpen, setIsOpen])
 
   return (
     <>
@@ -60,36 +38,36 @@ const Cart = () => {
         key={totalQuantity}
         initial={{ scale: 0.95, y: 10 }}
         animate={{ scale: 1, y: 0 }}
-        whileHover={{ 
+        whileHover={{
           scale: 1.05,
-          boxShadow: "0 8px 25px rgba(180, 83, 9, 0.3)"
+          boxShadow: "0 8px 25px rgba(180, 83, 9, 0.3)",
         }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 300 }}
         onClick={() => setIsOpen(true)}
         className="fixed bottom-8 right-8 bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-50 hover:shadow-3xl transition-all"
       >
-        <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    className="h-6 w-6"
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M12 2L2 7L12 12L22 7L12 2Z" />
-    <path d="M2 17L12 22L22 17" />
-    <path d="M2 12L12 17L22 12" />
-    <path d="M18 7L6 12" strokeLinecap="round"/>
-  </svg>
-        
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+          <path d="M2 17L12 22L22 17" />
+          <path d="M2 12L12 17L22 12" />
+          <path d="M18 7L6 12" strokeLinecap="round" />
+        </svg>
+
         <motion.span
           key={totalQuantity}
           initial={{ scale: 0 }}
-          animate={{ 
+          animate={{
             scale: 1,
             rotate: [0, 15, -15, 0],
-            transition: { type: "spring", stiffness: 500 } 
+            transition: { type: "spring", stiffness: 500 },
           }}
           className="bg-white text-amber-700 px-3 py-1.5 rounded-full text-sm font-bold min-w-[36px]"
         >
@@ -114,36 +92,8 @@ const Cart = () => {
             >
               <h2 className="text-2xl font-bold mb-6 text-gray-800">Mi Pedido</h2>
 
-              {isSubmitted ? (
-                <div className="text-center space-y-4">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="text-green-600 mb-4"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-16 w-16 mx-auto"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </motion.div>
-                  <p className="text-gray-700">
-                    ¡Pedido confirmado! Redirigiendo a WhatsApp...
-                  </p>
-                </div>
-              ) : cart.length === 0 ? (
-                <p className="text-gray-600 text-center py-8">
-                  Aún no has agregado platillos
-                </p>
+              {cart.length === 0 ? (
+                <p className="text-gray-600 text-center py-8">Aún no has agregado platillos</p>
               ) : (
                 <>
                   <div className="space-y-4 mb-6 max-h-[50vh] overflow-y-auto">
@@ -156,13 +106,11 @@ const Cart = () => {
                       >
                         <div>
                           <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                          <p className="text-sm text-gray-600">
-                            {item.quantity} porciones
-                          </p>
+                          <p className="text-sm text-gray-600">{item.quantity} porciones</p>
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-amber-700 font-semibold">
-                            S/{(parseFloat(item.price.replace("S/", "")) * item.quantity).toFixed(2)}
+                            S/{(Number.parseFloat(item.price.replace("S/", "")) * item.quantity).toFixed(2)}
                           </span>
                           <button
                             onClick={() => removeFromCart(item.name)}
@@ -177,26 +125,7 @@ const Cart = () => {
 
                   <div className="flex justify-between items-center mb-6 px-2">
                     <span className="font-bold text-lg">Total a pagar:</span>
-                    <span className="text-2xl font-bold text-amber-700">
-                      S/{getTotal().toFixed(2)}
-                    </span>
-                  </div>
-
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      placeholder="Tu nombre *"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Tu número de WhatsApp *"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                    />
+                    <span className="text-2xl font-bold text-amber-700">S/{getTotal().toFixed(2)}</span>
                   </div>
 
                   <div className="flex flex-col gap-3 mt-6">
@@ -204,24 +133,24 @@ const Cart = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all"
-                      onClick={handleSubmit}
+                      onClick={handlePayNow}
                     >
-                      Confirmar mi pedido
+                      Pagar ahora
                     </motion.button>
-                    
+
                     <button
                       className="w-full text-gray-600 hover:text-amber-700 py-3 rounded-xl font-medium transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
-                      Seguir pidiendo
+                      Volver a la carta
                     </button>
-                    
+
                     <button
                       className="text-red-500 hover:text-red-700 flex items-center justify-center gap-2 text-sm"
                       onClick={clearCart}
                     >
                       <Trash size={16} />
-                      Limpiar mi pedido
+                      Eliminar pedidos
                     </button>
                   </div>
                 </>
@@ -230,8 +159,11 @@ const Cart = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <PaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} total={getTotal()} />
     </>
   )
 }
 
 export default Cart
+

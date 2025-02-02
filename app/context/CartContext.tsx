@@ -1,7 +1,6 @@
-// app/context/CartContext.tsx
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 
 interface CartItem {
   name: string
@@ -17,21 +16,22 @@ interface CartContextType {
   clearCart: () => void
   getTotal: () => number
   getTotalQuantity: () => number
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([])
+  const [isOpen, setIsOpen] = useState(false)
 
   const addToCart = (item: CartItem) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.name === item.name)
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((cartItem) => cartItem.name === item.name)
       if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.name === item.name
-            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-            : cartItem
+        return prevCart.map((cartItem) =>
+          cartItem.name === item.name ? { ...cartItem, quantity: cartItem.quantity + item.quantity } : cartItem,
         )
       }
       return [...prevCart, { ...item, quantity: item.quantity }]
@@ -39,14 +39,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const removeFromCart = (itemName: string) => {
-    setCart(prevCart => prevCart.filter(item => item.name !== itemName))
+    setCart((prevCart) => prevCart.filter((item) => item.name !== itemName))
   }
 
   const updateQuantity = (itemName: string, quantity: number) => {
-    setCart(prevCart =>
-      prevCart.map(item =>
-        item.name === itemName ? { ...item, quantity: Math.max(1, quantity) } : item
-      )
+    setCart((prevCart) =>
+      prevCart.map((item) => (item.name === itemName ? { ...item, quantity: Math.max(1, quantity) } : item)),
     )
   }
 
@@ -56,7 +54,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getTotal = () => {
     return cart.reduce((total, item) => {
-      const price = parseFloat(item.price.replace("S/", ""))
+      const price = Number.parseFloat(item.price.replace("S/", ""))
       return total + price * item.quantity
     }, 0)
   }
@@ -74,7 +72,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity,
         clearCart,
         getTotal,
-        getTotalQuantity
+        getTotalQuantity,
+        isOpen,
+        setIsOpen,
       }}
     >
       {children}
@@ -89,3 +89,4 @@ export const useCart = () => {
   }
   return context
 }
+

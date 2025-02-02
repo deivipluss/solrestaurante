@@ -1,14 +1,16 @@
 "use client"
-import React, { useState, useEffect, useRef } from "react"
+
+import type React from "react"
+import { useState, useEffect, useRef } from "react"
 import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { menuSections } from "./data"
-import { TestimonialProps, MenuSection } from "./types"
+import type { TestimonialProps, MenuSection } from "./types"
 import Cart from "@/app/components/Cart"
-import MenuCard from "@/app/components/MenuCard" // Importación corregida
-
+import MenuCard from "@/app/components/MenuCard"
+import { useCart } from "@/app/context/CartContext"
 
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
   title,
@@ -42,6 +44,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ text, author }) => (
 )
 
 const MenuPage: React.FC = () => {
+  const { setIsOpen: setIsCartOpen } = useCart()
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [activeSection, setActiveSection] = useState<string>(menuSections[0].title)
   const [searchTerm, setSearchTerm] = useState<string>("")
@@ -119,12 +122,11 @@ const MenuPage: React.FC = () => {
                 transition={{ duration: 0.8 }}
               >
                 <Image
-                  src="https://via.placeholder.com/40x40"
+                  src="/placeholder.svg?height=40&width=40"
                   alt="Sol de Oro Logo"
                   width={40}
                   height={40}
                   className="rounded-full"
-                  unoptimized
                   priority
                 />
               </motion.div>
@@ -149,6 +151,7 @@ const MenuPage: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
+                onClick={() => setIsCartOpen(true)}
               >
                 Ordenar Ahora
               </motion.button>
@@ -202,17 +205,17 @@ const MenuPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 md:mb-16">
               <FeaturedCategory
                 title="Pollos a la Brasa"
-                image="/images/pollo-a-la-brasa.jpg"
+                image="/placeholder.svg?height=300&width=400"
                 onClick={() => scrollToSection("Pollos")}
               />
               <FeaturedCategory
                 title="Domingos"
-                image="/images/domingos.jpg"
+                image="/placeholder.svg?height=300&width=400"
                 onClick={() => scrollToSection("Especiales de Domingo")}
               />
               <FeaturedCategory
                 title="Para Compartir"
-                image="/images/para-compartir.jpg"
+                image="/placeholder.svg?height=300&width=400"
                 onClick={() => scrollToSection("Platos para Compartir")}
               />
             </div>
@@ -321,13 +324,12 @@ const MenuPage: React.FC = () => {
                 >
                   <div className="relative h-64 w-full">
                     <Image
-                      src={item.image || "https://via.placeholder.com/400x300"}
+                      src={item.image || "/placeholder.svg?height=400&width=300"}
                       alt={item.name}
                       className="object-cover"
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       priority
-                      unoptimized 
                     />
                     <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
                       <Star size={16} className="text-amber-500" />
@@ -343,7 +345,7 @@ const MenuPage: React.FC = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-yellow-500 transition-all shadow-md text-sm font-semibold"
-                        onClick={() => console.log(`Ordenar ${item.name}`)}
+                        onClick={() => setIsCartOpen(true)}
                       >
                         Ordenar Ahora
                       </motion.button>
@@ -465,3 +467,4 @@ const MenuPage: React.FC = () => {
 }
 
 export default MenuPage
+
