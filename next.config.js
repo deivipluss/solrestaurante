@@ -1,11 +1,10 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
+        protocol: "https",
+        hostname: "via.placeholder.com",
       },
     ],
   },
@@ -17,7 +16,8 @@ const nextConfig: NextConfig = {
   i18n: {
     locales: ["es-PE"],
     defaultLocale: "es-PE",
-  }
-};
+  },
+}
 
-export default nextConfig;
+module.exports = nextConfig
+
