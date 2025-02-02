@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import pool from "@/db"
+import pool from "@/lib/db"
 
 export async function GET() {
   try {
     const client = await pool.connect()
-    const result = await client.query("SELECT * FROM orders")
+    const result = await client.query("SELECT * FROM orders ORDER BY created_at DESC LIMIT 10")
     client.release()
 
     return NextResponse.json(result.rows)
