@@ -51,7 +51,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) =
               <p className="text-lg font-semibold text-amber-700">Total a pagar: S/{total.toFixed(2)}</p>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <Image
                 src="/placeholder.svg?height=200&width=200"
                 alt="Código QR de pago"
@@ -62,20 +62,28 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) =
               <p className="text-center text-sm text-gray-600 mt-2">Escanea el código QR para realizar el pago</p>
             </div>
 
+            <div className="mb-4">
+              <p className="text-center text-sm font-medium text-gray-700">
+                Número de cuenta interbancario:
+                <br />
+                <span className="font-bold">123-4567890-123-45</span>
+              </p>
+            </div>
+
             <div className="space-y-4 mb-6">
               <input
                 type="text"
                 placeholder="Tu nombre"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
               />
               <input
                 type="tel"
                 placeholder="Tu número de WhatsApp"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
               />
               <div>
                 <label htmlFor="receipt" className="block text-sm font-medium text-gray-700 mb-2">
@@ -86,7 +94,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) =
                   id="receipt"
                   accept="image/*"
                   onChange={(e) => setReceipt(e.target.files ? e.target.files[0] : null)}
-                  className="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
                 />
               </div>
             </div>
@@ -94,10 +102,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) =
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all"
+              className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all mb-4"
               onClick={handleConfirm}
             >
               ¡Confirmar ahora!
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-lg hover:bg-gray-300 transition-all"
+              onClick={onClose}
+            >
+              Volver al pedido
             </motion.button>
           </motion.div>
         </motion.div>
