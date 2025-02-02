@@ -1,18 +1,14 @@
-// app/layout.tsx
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Inter } from "next/font/google"
 import "./globals.css"
-import { CartProvider } from "@/app/context/CartContext" // Importa el CartProvider
+import { CartProvider } from "@/app/context/CartContext"
+import type React from "react" // Added import for React
 
-// Configuración de las fuentes Geist
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Configuración de la fuente Inter
+const inter = Inter({
   subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 })
 
 // Metadatos para la página
@@ -28,12 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* Envuelve la aplicación con el CartProvider */}
-        <CartProvider>
-          {children}
-        </CartProvider>
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   )
 }
+
