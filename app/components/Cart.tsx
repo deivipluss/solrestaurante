@@ -14,7 +14,10 @@ const Cart = () => {
 
   const handlePayNow = () => {
     setIsPaymentModalOpen(true)
-    setIsOpen(false)
+  }
+
+  const handleBackToCart = () => {
+    setIsPaymentModalOpen(false)
   }
 
   useEffect(() => {
@@ -75,7 +78,7 @@ const Cart = () => {
 
       {/* Modal del pedido */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !isPaymentModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -158,7 +161,15 @@ const Cart = () => {
         )}
       </AnimatePresence>
 
-      <PaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} total={getTotal()} />
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => {
+          setIsPaymentModalOpen(false)
+          setIsOpen(false)
+        }}
+        onBackToCart={handleBackToCart}
+        total={getTotal()}
+      />
     </>
   )
 }
