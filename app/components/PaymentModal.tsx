@@ -9,10 +9,11 @@ import { useCart } from "@/app/context/CartContext"
 interface PaymentModalProps {
   isOpen: boolean
   onClose: () => void
+  onBackToCart: () => void
   total: number
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCart, total }) => {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [receipt, setReceipt] = useState<File | null>(null)
@@ -112,7 +113,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, total }) =
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-lg hover:bg-gray-300 transition-all"
-              onClick={onClose}
+              onClick={onBackToCart}
             >
               Volver al pedido
             </motion.button>
