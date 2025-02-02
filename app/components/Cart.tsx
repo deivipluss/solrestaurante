@@ -3,14 +3,12 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
-import { useRouter } from "next/navigation"
 import { Trash } from "lucide-react"
 import PaymentModal from "./PaymentModal"
 
 const Cart = () => {
   const { cart, removeFromCart, getTotal, clearCart, getTotalQuantity, isOpen, setIsOpen } = useCart()
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
-  const router = useRouter()
 
   const totalQuantity = getTotalQuantity()
 
