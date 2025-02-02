@@ -17,6 +17,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [receipt, setReceipt] = useState<File | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { clearCart } = useCart()
 
   const handleConfirm = async () => {
@@ -24,6 +25,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       alert("Por favor, complete todos los campos y adjunte el comprobante de pago.")
       return
     }
+
+    setIsSubmitting(true)
 
     const formData = new FormData()
     formData.append("name", name)
@@ -44,11 +47,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
         onClose()
         alert(`Pago confirmado. Número de orden: ${result.orderId}`)
       } else {
-        throw new Error("Error al procesar el pago")
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Error al procesar el pago")
       }
     } catch (error) {
       console.error("Error al procesar el pago:", error)
-      alert("Hubo un error al procesar el pago. Por favor, intente nuevamente.")
+      alert(`Hubo un error al procesar el pago: ${error instanceof Error ? error.message : "Error desconocido"}`)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -126,8 +132,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
               whileTap={{ scale: 0.98 }}
               className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all mb-4"
               onClick={handleConfirm}
+              disabled={isSubmitting}
             >
-              ¡Confirmar ahora!
+              {isSubmitting ? "Procesando..." : "¡Confirmar ahora!"}
             </motion.button>
 
             <motion.button
@@ -135,6 +142,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
               whileTap={{ scale: 0.98 }}
               className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-lg hover:bg-gray-300 transition-all"
               onClick={onBackToCart}
+              disabled={isSubmitting}
             >
               Volver al pedido
             </motion.button>
