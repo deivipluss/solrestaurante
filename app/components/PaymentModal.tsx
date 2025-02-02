@@ -19,16 +19,37 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
   const [receipt, setReceipt] = useState<File | null>(null)
   const { clearCart } = useCart()
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!name || !phone || !receipt) {
       alert("Por favor, complete todos los campos y adjunte el comprobante de pago.")
       return
     }
 
-    // Aquí iría la lógica para procesar el pago y enviar la información
-    console.log("Pago confirmado", { name, phone, receipt })
-    clearCart()
-    onClose()
+    const formData = new FormData()
+    formData.append("name", name)
+    formData.append("phone", phone)
+    formData.append("total", total.toString())
+    formData.append("receipt", receipt)
+
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("Pago confirmado y guardado en la base de datos. ID de la orden:", result.orderId)
+        clearCart()
+        onClose()
+        alert(`Pago confirmado. Número de orden: ${result.orderId}`)
+      } else {
+        throw new Error("Error al procesar el pago")
+      }
+    } catch (error) {
+      console.error("Error al procesar el pago:", error)
+      alert("Hubo un error al procesar el pago. Por favor, intente nuevamente.")
+    }
   }
 
   return (
