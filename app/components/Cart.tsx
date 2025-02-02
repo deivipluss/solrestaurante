@@ -18,6 +18,7 @@ const Cart = () => {
 
   const handleBackToCart = () => {
     setIsPaymentModalOpen(false)
+    setIsOpen(true) // Asegúrate de que el modal del carrito se abra de nuevo
   }
 
   useEffect(() => {
