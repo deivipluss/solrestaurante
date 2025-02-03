@@ -8,6 +8,14 @@ interface CartItem {
   quantity: number
 }
 
+interface Order {
+  items: CartItem[]
+  total: number
+  customerName: string
+  customerPhone: string
+  paymentReceipt: File | null
+}
+
 interface CartContextType {
   cart: CartItem[]
   addToCart: (item: CartItem) => void
@@ -18,6 +26,7 @@ interface CartContextType {
   getTotalQuantity: () => number
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
+  createOrder: (customerName: string, customerPhone: string, paymentReceipt: File) => Order
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -63,6 +72,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return cart.reduce((total, item) => total + item.quantity, 0)
   }
 
+  const createOrder = (customerName: string, customerPhone: string, paymentReceipt: File): Order => {
+    return {
+      items: [...cart],
+      total: getTotal(),
+      customerName,
+      customerPhone,
+      paymentReceipt,
+    }
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -75,6 +94,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         getTotalQuantity,
         isOpen,
         setIsOpen,
+        createOrder,
       }}
     >
       {children}

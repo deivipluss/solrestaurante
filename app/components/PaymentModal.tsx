@@ -10,52 +10,28 @@ interface PaymentModalProps {
   isOpen: boolean
   onClose: () => void
   onBackToCart: () => void
+  cartItems: { name: string; price: string; quantity: number }[]
   total: number
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCart, total }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCart, cartItems, total }) => {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [receipt, setReceipt] = useState<File | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { clearCart } = useCart()
+  const { clearCart, createOrder } = useCart()
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
     if (!name || !phone || !receipt) {
       alert("Por favor, complete todos los campos y adjunte el comprobante de pago.")
       return
     }
 
-    setIsSubmitting(true)
+    const order = createOrder(name, phone, receipt)
 
-    const formData = new FormData()
-    formData.append("name", name)
-    formData.append("phone", phone)
-    formData.append("total", total.toString())
-    formData.append("receipt", receipt)
-
-    try {
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        console.log("Pago confirmado y guardado en la base de datos. ID de la orden:", result.orderId)
-        clearCart()
-        onClose()
-        alert(`Pago confirmado. Número de orden: ${result.orderId}`)
-      } else {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Error al procesar el pago")
-      }
-    } catch (error) {
-      console.error("Error al procesar el pago:", error)
-      alert(`Hubo un error al procesar el pago: ${error instanceof Error ? error.message : "Error desconocido"}`)
-    } finally {
-      setIsSubmitting(false)
-    }
+    // Aquí iría la lógica para procesar el pago y enviar la información
+    console.log("Orden confirmada", order)
+    clearCart()
+    onClose()
   }
 
   return (
@@ -76,7 +52,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Confirmar Pago</h2>
 
             <div className="mb-6">
-              <p className="text-lg font-semibold text-amber-700">Total a pagar: S/{total.toFixed(2)}</p>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Resumen del pedido:</h3>
+              {cartItems.map((item, index) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <span>
+                    {item.name} x{item.quantity}
+                  </span>
+                  <span>S/{(Number.parseFloat(item.price.replace("S/", "")) * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+              <div className="mt-2 pt-2 border-t border-gray-200">
+                <p className="text-lg font-semibold text-amber-700">Total a pagar: S/{total.toFixed(2)}</p>
+              </div>
             </div>
 
             <div className="mb-4">
@@ -132,9 +119,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
               whileTap={{ scale: 0.98 }}
               className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all mb-4"
               onClick={handleConfirm}
-              disabled={isSubmitting}
             >
-              {isSubmitting ? "Procesando..." : "¡Confirmar ahora!"}
+              ¡Confirmar ahora!
             </motion.button>
 
             <motion.button
@@ -142,7 +128,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
               whileTap={{ scale: 0.98 }}
               className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-lg hover:bg-gray-300 transition-all"
               onClick={onBackToCart}
-              disabled={isSubmitting}
             >
               Volver al pedido
             </motion.button>

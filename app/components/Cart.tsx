@@ -14,11 +14,12 @@ const Cart = () => {
 
   const handlePayNow = () => {
     setIsPaymentModalOpen(true)
+    setIsOpen(false)
   }
 
   const handleBackToCart = () => {
     setIsPaymentModalOpen(false)
-    setIsOpen(true) // Asegúrate de que el modal del carrito se abra de nuevo
+    setIsOpen(true)
   }
 
   useEffect(() => {
@@ -169,6 +170,7 @@ const Cart = () => {
           setIsOpen(false)
         }}
         onBackToCart={handleBackToCart}
+        cartItems={cart}
         total={getTotal()}
       />
     </>
