@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server"
 import pool from "@/lib/db"
-import { v2 as cloudinary } from "cloudinary"
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: "dasjnlinj",
-  api_key: "658875611319175",
-  api_secret: "Qv9_rVT1TGXUIRIBskSJB6-5ye8",
-})
+import cloudinary from "@/lib/cloudinary"
 
 export async function POST(request: Request) {
   try {
