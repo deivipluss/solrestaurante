@@ -8,8 +8,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 }
 
-// Timeouts configurados para Neon.tech
-const DB_QUERY_TIMEOUT = 5000 // 5 segundos
+const DB_QUERY_TIMEOUT = 5000
+
+// Función helper para manejar errores
+const getErrorDetails = (error: unknown) => {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }
+  }
+  return {
+    message: 'Error desconocido',
+    stack: undefined
+  }
+}
 
 export async function POST(request: NextRequest) {
   console.log("Recibida solicitud POST en /api/orders")
@@ -19,7 +32,7 @@ export async function POST(request: NextRequest) {
     
     // Validación mejorada
     const customerName = formData.get("customerName")?.toString()?.trim()
-    const customerPhone = formData.get("customerPhone")?.toString()?.replace(/\D/g, '') // Solo números
+    const customerPhone = formData.get("customerPhone")?.toString()?.replace(/\D/g, '')
     const totalAmount = Number(formData.get("totalAmount")?.toString()?.replace(/[^0-9.]/g, ''))
     const receipt = formData.get("receipt") as File | null
     const itemsRaw = formData.get("items")?.toString()
@@ -39,14 +52,19 @@ export async function POST(request: NextRequest) {
       items = JSON.parse(itemsRaw)
       if (!Array.isArray(items) || items.some(item => 
         !item?.name?.trim() || 
-        isNaN(item?.quantity) || 
+        isNaN(Number(item?.quantity)) || 
         isNaN(Number(String(item?.price).replace(/[^0-9.]/g, '')))
       )) {
         throw new Error("Estructura de items inválida")
       }
     } catch (e) {
+      const errorDetails = getErrorDetails(e)
       return NextResponse.json(
-        { success: false, error: "Formato de items incorrecto" },
+        { 
+          success: false, 
+          error: "Formato de items incorrecto",
+          details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
+        },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -58,9 +76,14 @@ export async function POST(request: NextRequest) {
       cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
       console.log("Cloudinary URL:", cloudinaryUrl)
     } catch (error) {
-      console.error("Error Cloudinary:", error)
+      const errorDetails = getErrorDetails(error)
+      console.error("Error Cloudinary:", errorDetails)
       return NextResponse.json(
-        { success: false, error: "Error al subir comprobante" },
+        { 
+          success: false, 
+          error: "Error al subir comprobante",
+          details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
+        },
         { status: 500, headers: corsHeaders }
       )
     }
@@ -99,7 +122,7 @@ export async function POST(request: NextRequest) {
           values: [
             orderId,
             item.name.trim(),
-            Math.max(1, Math.min(100, Number(item.quantity))), // Limitar cantidad 1-100
+            Math.max(1, Math.min(100, Number(item.quantity))),
             cleanPrice
           ]
         })
@@ -113,17 +136,19 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
       await client.query("ROLLBACK")
-      console.error("Error en transacción:", error)
-      throw error
+      const errorDetails = getErrorDetails(error)
+      console.error("Error en transacción:", errorDetails)
+      throw new Error(errorDetails.message)
     }
 
   } catch (error) {
-    console.error("Error general:", error)
+    const errorDetails = getErrorDetails(error)
+    console.error("Error general:", errorDetails)
     return NextResponse.json(
       { 
         success: false, 
         error: "Error procesando solicitud",
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
       },
       { status: 500, headers: corsHeaders }
     )
