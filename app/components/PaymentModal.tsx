@@ -59,13 +59,24 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
         body: formData,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      console.log("Respuesta del servidor:", response.status, response.statusText)
+
+      const responseText = await response.text()
+      console.log("Texto de la respuesta:", responseText)
+
+      let result
+      try {
+        result = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("Error al parsear la respuesta JSON:", parseError)
+        throw new Error(`Respuesta no válida del servidor: ${responseText}`)
       }
 
-      const result = await response.json()
-      console.log("Respuesta del servidor:", result)
+      if (!response.ok) {
+        throw new Error(result.error || `Error del servidor: ${response.status} ${response.statusText}`)
+      }
+
+      console.log("Respuesta del servidor procesada:", result)
 
       if (result.success) {
         clearCart()
