@@ -2,109 +2,118 @@ import { type NextRequest, NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
+// Headers CORS para todas las respuestas
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+}
+
 export async function POST(request: NextRequest) {
   console.log("Recibida solicitud POST en /api/orders")
+  let client
   try {
     const formData = await request.formData()
-    const customerName = formData.get("customerName") as string
-    const customerPhone = formData.get("customerPhone") as string
-    const totalAmount = Number.parseFloat(formData.get("totalAmount") as string)
-    const receipt = formData.get("receipt") as File
-    const items = JSON.parse(formData.get("items") as string)
+    
+    // Validación mejorada de campos
+    const customerName = formData.get("customerName")?.toString()
+    const customerPhone = formData.get("customerPhone")?.toString()
+    const totalAmount = Number(formData.get("totalAmount")?.toString() || "")
+    const receipt = formData.get("receipt") as File | null
+    const itemsRaw = formData.get("items")?.toString()
 
-    console.log("Datos recibidos:", {
-      customerName,
-      customerPhone,
-      totalAmount,
-      receiptName: receipt?.name,
-      itemsCount: items.length,
-    })
+    console.log("Datos recibidos:", { customerName, customerPhone, totalAmount })
 
-    if (!customerName || !customerPhone || isNaN(totalAmount) || !receipt || !items) {
-      return NextResponse.json({ success: false, error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
+    // Validación estricta
+    if (!customerName?.trim() || !customerPhone?.trim() || isNaN(totalAmount) || !receipt || !itemsRaw) {
+      return NextResponse.json(
+        { success: false, error: "Faltan datos requeridos o son inválidos" },
+        { status: 400, headers: corsHeaders }
+      )
     }
 
-    // Subir recibo a Cloudinary
-    let cloudinaryUrl = ""
+    // Validación de items
+    let items
+    try {
+      items = JSON.parse(itemsRaw)
+      if (!Array.isArray(items)) throw new Error("Formato inválido para items")
+    } catch (e) {
+      return NextResponse.json(
+        { success: false, error: "Formato inválido para items del pedido" },
+        { status: 400, headers: corsHeaders }
+      )
+    }
+
+    // Subida a Cloudinary
+    let cloudinaryUrl
     try {
       const buffer = await receipt.arrayBuffer()
       cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
-      console.log("Imagen subida a Cloudinary:", cloudinaryUrl)
+      console.log("Cloudinary URL:", cloudinaryUrl)
     } catch (error) {
-      console.error("Error al subir imagen a Cloudinary:", error)
+      console.error("Error Cloudinary:", error)
       return NextResponse.json(
-        {
-          success: false,
-          error: "Error al procesar la imagen del recibo",
-          details: error instanceof Error ? error.message : String(error),
-        },
-        { status: 500 },
+        { success: false, error: "Error al subir el comprobante" },
+        { status: 500, headers: corsHeaders }
       )
     }
 
-    const client = await pool.connect()
-    try {
-      await client.query("BEGIN")
+    client = await pool.connect()
+    await client.query("BEGIN")
 
-      // Insertar orden
-      const orderResult = await client.query(
-        "INSERT INTO orders (customer_name, customer_phone, total_amount) VALUES ($1, $2, $3) RETURNING id",
-        [customerName, customerPhone, totalAmount],
-      )
-      const orderId = orderResult.rows[0].id
-      console.log("Orden insertada con ID:", orderId)
-
-      // Insertar comprobante de pago
-      await client.query("INSERT INTO payment_proofs (order_id, cloudinary_url) VALUES ($1, $2)", [
-        orderId,
-        cloudinaryUrl,
-      ])
-      console.log("Comprobante de pago insertado")
-
-      // Insertar items del pedido
-      for (const item of items) {
-        await client.query("INSERT INTO order_items (order_id, item_name, quantity, price) VALUES ($1, $2, $3, $4)", [
-          orderId,
-          item.name,
-          item.quantity,
-          Number.parseFloat(item.price.replace("S/", "")),
-        ])
-      }
-      console.log("Items del pedido insertados")
-
-      await client.query("COMMIT")
-      console.log("Transacción completada con éxito")
-
-      return NextResponse.json({ success: true, orderId: orderId, receiptUrl: cloudinaryUrl })
-    } catch (error) {
-      await client.query("ROLLBACK")
-      console.error("Error al guardar la orden:", error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Error al procesar la orden",
-          details: error instanceof Error ? error.message : String(error),
-        },
-        { status: 500 },
-      )
-    } finally {
-      client.release()
-    }
-  } catch (error) {
-    console.error("Error en el servidor:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Error interno del servidor",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
+    // Insertar orden
+    const orderRes = await client.query(
+      `INSERT INTO orders (customer_name, customer_phone, total_amount)
+       VALUES ($1, $2, $3) RETURNING id`,
+      [customerName.trim(), customerPhone.trim(), totalAmount]
     )
+    const orderId = orderRes.rows[0]?.id
+    if (!orderId) throw new Error("No se obtuvo ID de orden")
+
+    // Insertar comprobante
+    await client.query(
+      `INSERT INTO payment_proofs (order_id, cloudinary_url)
+       VALUES ($1, $2)`,
+      [orderId, cloudinaryUrl]
+    )
+
+    // Insertar items
+    for (const item of items) {
+      if (!item.name || !item.quantity || !item.price) {
+        throw new Error("Item incompleto")
+      }
+      await client.query(
+        `INSERT INTO order_items (order_id, item_name, quantity, price)
+         VALUES ($1, $2, $3, $4)`,
+        [orderId, item.name, Number(item.quantity), Number(String(item.price).replace("S/", ""))]
+      )
+    }
+
+    await client.query("COMMIT")
+
+    return NextResponse.json(
+      { success: true, orderId, receiptUrl: cloudinaryUrl },
+      { headers: corsHeaders }
+    )
+
+  } catch (error) {
+    console.error("Error general:", error)
+    if (client) {
+      try {
+        await client.query("ROLLBACK")
+      } catch (rollbackError) {
+        console.error("Error en ROLLBACK:", rollbackError)
+      }
+    }
+    return NextResponse.json(
+      { success: false, error: "Error interno del servidor" },
+      { status: 500, headers: corsHeaders }
+    )
+  } finally {
+    if (client) client.release()
   }
 }
 
-// Agregar un manejador para OPTIONS para manejar las solicitudes de preflight CORS
 export async function OPTIONS() {
-  return NextResponse.json({}, { status: 200 })
+  return NextResponse.json({}, { headers: corsHeaders })
 }
-

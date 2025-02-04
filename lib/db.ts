@@ -1,18 +1,42 @@
-import { Pool } from "pg"
+import { Pool } from "pg";
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
-})
+// 1. Definir interfaz para el certificado SSL
+interface SSLConfig {
+    rejectUnauthorized: boolean;
+    ca?: string;
+}
 
-pool.on("error", (err) => {
-  console.error("Error inesperado en el pool de la base de datos", err)
-})
+// 2. Configuración tipada del pool
+const poolConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === "production" ? {
+        rejectUnauthorized: true,
+        ca: process.env.DB_CA_CERT?.replace(/\\n/g, '\n')
+    } as SSLConfig : false,
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000
+};
 
-console.log("Configuración de la base de datos:", {
-  connectionString: process.env.DATABASE_URL ? "Configurado" : "No configurado",
-  ssl: process.env.NODE_ENV === "production" ? "Configurado para producción" : "Desactivado para desarrollo",
-})
+const pool = new Pool(poolConfig);
 
-export default pool
+// 3. Manejador de errores con tipado explícito
+pool.on("error", (err: Error) => {
+    console.error("Error crítico en el pool de PostgreSQL:", err);
+    process.exit(1); // Código de salida válido (0-255)
+});
 
+// 4. Verificación de conexión inicial
+(async () => {
+    let client;
+    try {
+        client = await pool.connect();
+        console.log("✅ Conexión a PostgreSQL establecida");
+    } catch (error) {
+        console.error("❌ Error conectando a PostgreSQL:", error);
+        process.exit(1);
+    } finally {
+        if (client) client.release();
+    }
+})();
+
+export default pool;
