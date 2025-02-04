@@ -33,7 +33,6 @@ export async function POST(request: Request) {
     })
 
     if (!customerName || !customerPhone || isNaN(totalAmount) || !receipt || !items) {
-      console.error("Datos faltantes o inválidos:", { customerName, customerPhone, totalAmount, receipt, items })
       return NextResponse.json({ error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
     }
 
@@ -42,7 +41,6 @@ export async function POST(request: Request) {
     try {
       const buffer = await receipt.arrayBuffer()
       cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
-      console.log("Imagen subida a Cloudinary:", cloudinaryUrl)
     } catch (error) {
       logError("subir imagen a Cloudinary", error)
       return NextResponse.json(
@@ -61,14 +59,12 @@ export async function POST(request: Request) {
         [customerName, customerPhone, totalAmount],
       )
       const orderId = orderResult.rows[0].id
-      console.log("Orden insertada con ID:", orderId)
 
       // Insertar comprobante de pago
       await client.query("INSERT INTO payment_proofs (order_id, cloudinary_url) VALUES ($1, $2)", [
         orderId,
         cloudinaryUrl,
       ])
-      console.log("Comprobante de pago insertado")
 
       // Insertar items del pedido
       for (const item of items) {
@@ -79,10 +75,8 @@ export async function POST(request: Request) {
           Number.parseFloat(item.price.replace("S/", "")),
         ])
       }
-      console.log("Items del pedido insertados")
 
       await client.query("COMMIT")
-      console.log("Transacción completada con éxito")
 
       return NextResponse.json({ success: true, orderId: orderId, receiptUrl: cloudinaryUrl })
     } catch (error) {
@@ -101,3 +95,9 @@ export async function POST(request: Request) {
   }
 }
 
+// Add this export to explicitly define route config
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
