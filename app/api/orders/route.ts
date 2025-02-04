@@ -2,6 +2,19 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+  return String(error)
+}
+
+function logError(context: string, error: unknown) {
+  console.error(`Error en ${context}:`, {
+    message: getErrorMessage(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    error,
+  })
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData()
@@ -31,9 +44,9 @@ export async function POST(request: Request) {
       cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
       console.log("Imagen subida a Cloudinary:", cloudinaryUrl)
     } catch (error) {
-      console.error("Error detallado al subir la imagen a Cloudinary:", error)
+      logError("subir imagen a Cloudinary", error)
       return NextResponse.json(
-        { error: "Error al procesar la imagen del recibo", details: error.message },
+        { error: "Error al procesar la imagen del recibo", details: getErrorMessage(error) },
         { status: 500 },
       )
     }
@@ -74,14 +87,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, orderId: orderId, receiptUrl: cloudinaryUrl })
     } catch (error) {
       await client.query("ROLLBACK")
-      console.error("Error detallado al guardar la orden:", error)
-      return NextResponse.json({ error: "Error al procesar la orden", details: error.message }, { status: 500 })
+      logError("guardar la orden", error)
+      return NextResponse.json(
+        { error: "Error al procesar la orden", details: getErrorMessage(error) },
+        { status: 500 },
+      )
     } finally {
       client.release()
     }
   } catch (error) {
-    console.error("Error detallado en el servidor:", error)
-    return NextResponse.json({ error: "Error interno del servidor", details: error.message }, { status: 500 })
+    logError("servidor", error)
+    return NextResponse.json({ error: "Error interno del servidor", details: getErrorMessage(error) }, { status: 500 })
   }
 }
 
