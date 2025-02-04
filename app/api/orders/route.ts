@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import pool from "@/lib/db"
-import { cloudinary } from "@/lib/cloudinary"
+import { uploadToCloudinary } from "@/lib/cloudinary"
 
 export async function POST(request: Request) {
   try {
@@ -19,13 +19,7 @@ export async function POST(request: Request) {
     let cloudinaryUrl = ""
     try {
       const buffer = await receipt.arrayBuffer()
-      const base64 = Buffer.from(buffer).toString("base64")
-      const dataURI = `data:${receipt.type};base64,${base64}`
-
-      const uploadResult = await cloudinary.uploader.upload(dataURI, {
-        folder: "restaurant-receipts",
-      })
-      cloudinaryUrl = uploadResult.secure_url
+      cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
     } catch (error) {
       console.error("Error al subir la imagen a Cloudinary:", error)
       return NextResponse.json({ error: "Error al procesar la imagen del recibo" }, { status: 500 })
