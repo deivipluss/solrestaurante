@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     })
 
     if (!customerName || !customerPhone || isNaN(totalAmount) || !receipt || !items) {
-      return NextResponse.json({ error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
+      return NextResponse.json({ success: false, error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
     }
 
     // Subir recibo a Cloudinary
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       console.error("Error al subir imagen a Cloudinary:", error)
       return NextResponse.json(
         {
+          success: false,
           error: "Error al procesar la imagen del recibo",
           details: error instanceof Error ? error.message : String(error),
         },
@@ -78,7 +79,11 @@ export async function POST(request: Request) {
       await client.query("ROLLBACK")
       console.error("Error al guardar la orden:", error)
       return NextResponse.json(
-        { error: "Error al procesar la orden", details: error instanceof Error ? error.message : String(error) },
+        {
+          success: false,
+          error: "Error al procesar la orden",
+          details: error instanceof Error ? error.message : String(error),
+        },
         { status: 500 },
       )
     } finally {
@@ -87,7 +92,11 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error en el servidor:", error)
     return NextResponse.json(
-      { error: "Error interno del servidor", details: error instanceof Error ? error.message : String(error) },
+      {
+        success: false,
+        error: "Error interno del servidor",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 },
     )
   }
