@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
+export const dynamic = 'force-dynamic'
+
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
   return String(error)
@@ -24,19 +26,10 @@ export async function POST(request: Request) {
     const receipt = formData.get("receipt") as File
     const items = JSON.parse(formData.get("items") as string)
 
-    console.log("Datos recibidos:", {
-      customerName,
-      customerPhone,
-      totalAmount,
-      receiptName: receipt?.name,
-      itemsCount: items.length,
-    })
-
     if (!customerName || !customerPhone || isNaN(totalAmount) || !receipt || !items) {
       return NextResponse.json({ error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
     }
 
-    // Subir recibo a Cloudinary
     let cloudinaryUrl = ""
     try {
       const buffer = await receipt.arrayBuffer()
@@ -53,20 +46,17 @@ export async function POST(request: Request) {
     try {
       await client.query("BEGIN")
 
-      // Insertar orden
       const orderResult = await client.query(
         "INSERT INTO orders (customer_name, customer_phone, total_amount) VALUES ($1, $2, $3) RETURNING id",
         [customerName, customerPhone, totalAmount],
       )
       const orderId = orderResult.rows[0].id
 
-      // Insertar comprobante de pago
       await client.query("INSERT INTO payment_proofs (order_id, cloudinary_url) VALUES ($1, $2)", [
         orderId,
         cloudinaryUrl,
       ])
 
-      // Insertar items del pedido
       for (const item of items) {
         await client.query("INSERT INTO order_items (order_id, item_name, quantity, price) VALUES ($1, $2, $3, $4)", [
           orderId,
@@ -93,11 +83,4 @@ export async function POST(request: Request) {
     logError("servidor", error)
     return NextResponse.json({ error: "Error interno del servidor", details: getErrorMessage(error) }, { status: 500 })
   }
-}
-
-// Add this export to explicitly define route config
-export const config = {
-  api: {
-    bodyParser: false,
-  },
 }
