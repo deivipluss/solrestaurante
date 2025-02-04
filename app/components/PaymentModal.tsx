@@ -38,23 +38,32 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
     formData.append("receipt", receipt)
 
     try {
+      console.log("Enviando datos al servidor:", {
+        customerName: name,
+        customerPhone: phone,
+        totalAmount: total,
+        itemsCount: cartItems.length,
+        receiptName: receipt.name,
+      })
+
       const response = await fetch("/api/orders", {
         method: "POST",
         body: formData,
       })
 
-      if (response.ok) {
-        const result = await response.json()
-        console.log("Order created:", result)
+      const result = await response.json()
+      console.log("Respuesta del servidor:", result)
+
+      if (response.ok && result.success) {
         clearCart()
         onClose()
         alert("¡Pedido realizado con éxito!")
       } else {
-        throw new Error("Error al crear el pedido")
+        throw new Error(result.error || "Error desconocido al crear el pedido")
       }
     } catch (error) {
-      console.error("Error:", error)
-      alert("Hubo un error al procesar su pedido. Por favor, inténtelo de nuevo.")
+      console.error("Error detallado:", error)
+      alert(`Hubo un error al procesar su pedido: ${error.message}. Por favor, inténtelo de nuevo.`)
     } finally {
       setIsSubmitting(false)
     }
