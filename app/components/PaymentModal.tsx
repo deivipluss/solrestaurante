@@ -63,7 +63,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       }
     } catch (error) {
       console.error("Error detallado:", error)
-      alert(`Hubo un error al procesar su pedido: ${error.message}. Por favor, inténtelo de nuevo.`)
+      alert(
+        `Hubo un error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`,
+      )
     } finally {
       setIsSubmitting(false)
     }
