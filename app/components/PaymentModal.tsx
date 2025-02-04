@@ -51,10 +51,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
         body: formData,
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const result = await response.json()
       console.log("Respuesta del servidor:", result)
 
-      if (response.ok && result.success) {
+      if (result.success) {
         clearCart()
         onClose()
         alert("¡Pedido realizado con éxito!")

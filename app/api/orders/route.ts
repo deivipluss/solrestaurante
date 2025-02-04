@@ -32,9 +32,9 @@ export async function POST(request: Request) {
       itemsCount: items.length,
     })
 
-    if (!customerName || !customerPhone || !totalAmount || !receipt || !items) {
-      console.error("Datos faltantes:", { customerName, customerPhone, totalAmount, receipt, items })
-      return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 })
+    if (!customerName || !customerPhone || isNaN(totalAmount) || !receipt || !items) {
+      console.error("Datos faltantes o inválidos:", { customerName, customerPhone, totalAmount, receipt, items })
+      return NextResponse.json({ error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
     }
 
     // Subir recibo a Cloudinary
