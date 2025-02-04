@@ -2,19 +2,6 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message
-  return String(error)
-}
-
-function logError(context: string, error: unknown) {
-  console.error(`Error en ${context}:`, {
-    message: getErrorMessage(error),
-    stack: error instanceof Error ? error.stack : undefined,
-    error,
-  })
-}
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData()
@@ -33,7 +20,6 @@ export async function POST(request: Request) {
     })
 
     if (!customerName || !customerPhone || isNaN(totalAmount) || !receipt || !items) {
-      console.error("Datos faltantes o inválidos:", { customerName, customerPhone, totalAmount, receipt, items })
       return NextResponse.json({ error: "Faltan datos requeridos o son inválidos" }, { status: 400 })
     }
 
@@ -44,9 +30,12 @@ export async function POST(request: Request) {
       cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
       console.log("Imagen subida a Cloudinary:", cloudinaryUrl)
     } catch (error) {
-      logError("subir imagen a Cloudinary", error)
+      console.error("Error al subir imagen a Cloudinary:", error)
       return NextResponse.json(
-        { error: "Error al procesar la imagen del recibo", details: getErrorMessage(error) },
+        {
+          error: "Error al procesar la imagen del recibo",
+          details: error instanceof Error ? error.message : String(error),
+        },
         { status: 500 },
       )
     }
@@ -87,17 +76,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, orderId: orderId, receiptUrl: cloudinaryUrl })
     } catch (error) {
       await client.query("ROLLBACK")
-      logError("guardar la orden", error)
+      console.error("Error al guardar la orden:", error)
       return NextResponse.json(
-        { error: "Error al procesar la orden", details: getErrorMessage(error) },
+        { error: "Error al procesar la orden", details: error instanceof Error ? error.message : String(error) },
         { status: 500 },
       )
     } finally {
       client.release()
     }
   } catch (error) {
-    logError("servidor", error)
-    return NextResponse.json({ error: "Error interno del servidor", details: getErrorMessage(error) }, { status: 500 })
+    console.error("Error en el servidor:", error)
+    return NextResponse.json(
+      { error: "Error interno del servidor", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    )
   }
 }
 

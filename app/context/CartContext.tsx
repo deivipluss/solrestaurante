@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 
 interface CartItem {
   name: string
@@ -35,7 +35,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
 
-  const addToCart = (item: CartItem) => {
+  const addToCart = useCallback((item: CartItem) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((cartItem) => cartItem.name === item.name)
       if (existingItem) {
@@ -45,61 +45,63 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       return [...prevCart, { ...item, quantity: item.quantity }]
     })
-  }
+  }, [])
 
-  const removeFromCart = (itemName: string) => {
+  const removeFromCart = useCallback((itemName: string) => {
     setCart((prevCart) => prevCart.filter((item) => item.name !== itemName))
-  }
+  }, [])
 
-  const updateQuantity = (itemName: string, quantity: number) => {
+  const updateQuantity = useCallback((itemName: string, quantity: number) => {
     setCart((prevCart) =>
       prevCart.map((item) => (item.name === itemName ? { ...item, quantity: Math.max(1, quantity) } : item)),
     )
-  }
+  }, [])
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([])
-  }
+  }, [])
 
-  const getTotal = () => {
+  const getTotal = useCallback(() => {
     return cart.reduce((total, item) => {
       const price = Number.parseFloat(item.price.replace("S/", ""))
       return total + price * item.quantity
     }, 0)
-  }
+  }, [cart])
 
-  const getTotalQuantity = () => {
+  const getTotalQuantity = useCallback(() => {
     return cart.reduce((total, item) => total + item.quantity, 0)
-  }
+  }, [cart])
 
-  const createOrder = (customerName: string, customerPhone: string, paymentReceipt: File): Order => {
-    return {
-      items: [...cart],
-      total: getTotal(),
-      customerName,
-      customerPhone,
-      paymentReceipt,
-    }
-  }
-
-  return (
-    <CartContext.Provider
-      value={{
-        cart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        getTotal,
-        getTotalQuantity,
-        isOpen,
-        setIsOpen,
-        createOrder,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  const createOrder = useCallback(
+    (customerName: string, customerPhone: string, paymentReceipt: File): Order => {
+      return {
+        items: [...cart],
+        total: getTotal(),
+        customerName,
+        customerPhone,
+        paymentReceipt,
+      }
+    },
+    [cart, getTotal],
   )
+
+  const contextValue = useMemo(
+    () => ({
+      cart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      getTotal,
+      getTotalQuantity,
+      isOpen,
+      setIsOpen,
+      createOrder,
+    }),
+    [cart, addToCart, removeFromCart, updateQuantity, clearCart, getTotal, getTotalQuantity, isOpen, createOrder],
+  )
+
+  return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
 }
 
 export const useCart = () => {

@@ -35,7 +35,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
     formData.append("customerPhone", phone)
     formData.append("totalAmount", total.toString())
     formData.append("items", JSON.stringify(cartItems))
-    formData.append("receipt", receipt)
+
+    if (receipt.type.startsWith("image/")) {
+      formData.append("receipt", receipt)
+    } else {
+      alert("Por favor, adjunte una imagen válida como comprobante.")
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       console.log("Enviando datos al servidor:", {
@@ -44,6 +51,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
         totalAmount: total,
         itemsCount: cartItems.length,
         receiptName: receipt.name,
+        receiptType: receipt.type,
       })
 
       const response = await fetch("/api/orders", {
@@ -52,7 +60,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
 
       const result = await response.json()
