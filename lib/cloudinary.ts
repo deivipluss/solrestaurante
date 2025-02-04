@@ -1,15 +1,18 @@
 import { v2 as cloudinary } from "cloudinary"
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME
+const apiKey = process.env.CLOUDINARY_API_KEY
+const apiSecret = process.env.CLOUDINARY_API_SECRET
 
-console.log("Configuración de Cloudinary:", {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY?.slice(0, 5) + "...",
-  api_secret: process.env.CLOUDINARY_API_SECRET ? "Configurado" : "No configurado",
+if (!cloudName || !apiKey || !apiSecret) {
+  console.error("Cloudinary environment variables are missing")
+  throw new Error("Cloudinary configuration is incomplete")
+}
+
+cloudinary.config({
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
 })
 
 export const uploadToCloudinary = async (file: Buffer, fileType: string): Promise<string> => {
@@ -23,7 +26,7 @@ export const uploadToCloudinary = async (file: Buffer, fileType: string): Promis
         },
         (error, result) => {
           if (error) {
-            console.error("Error en Cloudinary:", error)
+            console.error("Cloudinary upload error:", error)
             reject(error)
           } else {
             resolve(result?.secure_url || "")
