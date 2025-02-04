@@ -57,6 +57,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       const response = await fetch("/api/orders", {
         method: "POST",
         body: formData,
+        headers: {
+          Accept: "application/json",
+        },
       })
 
       console.log("Respuesta del servidor:", response.status, response.statusText)

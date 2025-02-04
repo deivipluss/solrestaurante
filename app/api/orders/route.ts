@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  console.log("Recibida solicitud POST en /api/orders")
   try {
     const formData = await request.formData()
     const customerName = formData.get("customerName") as string
@@ -100,5 +101,10 @@ export async function POST(request: Request) {
       { status: 500 },
     )
   }
+}
+
+// Agregar un manejador para OPTIONS para manejar las solicitudes de preflight CORS
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200 })
 }
 
