@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:db": "node -e \"const pool = require('./lib/db'); pool.query('SELECT NOW()', (err, res) => { console.log(err ? err : 'Conexión exitosa a la base de datos'); pool.end(); });\""
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
@@ -37,3 +38,4 @@
     "typescript": "^5"
   }
 }
+

@@ -1,7 +1,7 @@
 import { Pool } from "pg"
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL?.replace(/\/[^/]+$/, "/bdrestaurante2025"),
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 })
 
@@ -12,6 +12,7 @@ pool.on("error", (err) => {
 console.log("Configuración de la base de datos:", {
   connectionString: process.env.DATABASE_URL ? "Configurado" : "No configurado",
   ssl: process.env.NODE_ENV === "production" ? "Configurado para producción" : "Desactivado para desarrollo",
+  database: "bdrestaurante2025",
 })
 
 export default pool
