@@ -17,13 +17,14 @@ export const uploadToCloudinary = async (file: Buffer, fileType: string): Promis
         folder: "restaurant-receipts",
         allowed_formats: ["jpg", "png", "jpeg", "gif"],
         resource_type: "auto",
+        transformation: [{ width: 1920, height: 1080, crop: "limit" }, { quality: "auto:good" }],
       },
       (error, result) => {
         if (error) {
-          console.error("Cloudinary upload error:", error)
-          reject(new Error(`Cloudinary upload failed: ${error.message}`))
+          console.error("Error de Cloudinary:", error)
+          reject(new Error(`Error al subir a Cloudinary: ${error.message}`))
         } else if (!result?.secure_url) {
-          reject(new Error("Cloudinary upload failed: No secure URL returned"))
+          reject(new Error("Error al subir a Cloudinary: No se recibió URL segura"))
         } else {
           resolve(result.secure_url)
         }

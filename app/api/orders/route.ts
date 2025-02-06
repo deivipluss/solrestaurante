@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
-import sharp from "sharp"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-async function compressImage(buffer: Buffer): Promise<Buffer> {
-  return sharp(buffer).resize(1920, 1080, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 80 }).toBuffer()
-}
 
 export async function POST(request: Request) {
   console.log("Recibida solicitud POST en /api/orders")
@@ -22,30 +17,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Comprobante requerido" }, { status: 400 })
     }
 
-    // Compress image
-    const buffer = await receipt.arrayBuffer()
-    const compressedImageBuffer = await compressImage(Buffer.from(buffer))
-
-    // Check compressed file size
-    if (compressedImageBuffer.length > 4.5 * 1024 * 1024) {
-      // 4.5MB in bytes
+    // Verificar tamaño antes de procesar
+    const MAX_SIZE = 4.5 * 1024 * 1024 // 4.5MB en bytes
+    if (receipt.size > MAX_SIZE) {
       return NextResponse.json(
         { success: false, error: "El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB" },
         { status: 413 },
       )
     }
 
-    // Cloudinary upload
+    // Convertir el archivo a buffer
+    const buffer = await receipt.arrayBuffer()
+
+    // Subir a Cloudinary (la compresión se realizará en Cloudinary)
     let cloudinaryUrl
     try {
-      cloudinaryUrl = await uploadToCloudinary(compressedImageBuffer, "image/jpeg")
+      cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
       console.log("Cloudinary URL:", cloudinaryUrl)
     } catch (error) {
       console.error("Error Cloudinary:", error)
       return NextResponse.json({ success: false, error: "Error al subir comprobante a Cloudinary" }, { status: 500 })
     }
 
-    // Database operations
+    // Operaciones de base de datos
     client = await pool.connect()
     await client.query("BEGIN")
 
