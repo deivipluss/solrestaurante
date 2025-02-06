@@ -2,16 +2,19 @@
   "name": "solrestaurante",
   "version": "0.1.4",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:db": "node -e \"import('./lib/db.js').then(({ pool }) => pool.query('SELECT NOW()').then(res => { console.log('✅ Conexión exitosa'); pool.end(); }).catch(err => { console.error('❌ Error:', err); process.exit(1); }))\"",
-    "test:cloudinary": "node app/cloudinary-test.js"
+    "test:db": "node --require dotenv/config --loader ts-node/esm scripts/test-db.ts",
+    "test:cloudinary": "node app/cloudinary-test.js",
+    "migrate": "prisma migrate dev --name init",
+    "generate": "prisma generate",
+    "push": "prisma db push"
   },
   "dependencies": {
+    "@prisma/client": "^6.3.1",
     "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-dropdown-menu": "^2.1.4",
     "autoprefixer": "^10.4.20",
@@ -23,10 +26,12 @@
     "multer-storage-cloudinary": "^4.0.0",
     "next": "^14.2.3",
     "pg": "^8.13.1",
+    "prisma": "^6.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-intersection-observer": "^9.5.3",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.2",
@@ -39,5 +44,9 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.4.5"
+  },
+  "type": "module",
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
   }
 }
