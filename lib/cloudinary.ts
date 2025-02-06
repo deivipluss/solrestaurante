@@ -21,9 +21,11 @@ export const uploadToCloudinary = async (file: Buffer, fileType: string): Promis
       (error, result) => {
         if (error) {
           console.error("Cloudinary upload error:", error)
-          reject(error)
+          reject(new Error(`Cloudinary upload failed: ${error.message}`))
+        } else if (!result?.secure_url) {
+          reject(new Error("Cloudinary upload failed: No secure URL returned"))
         } else {
-          resolve(result?.secure_url || "")
+          resolve(result.secure_url)
         }
       },
     )

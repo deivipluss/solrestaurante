@@ -1,23 +1,23 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
-  
-  // Headers esenciales para Neon y Vercel
-  response.headers.set('Access-Control-Allow-Origin', '*')
-  response.headers.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
-  response.headers.set('X-Edge-Functions', '1') // Necesario para Vercel
+
+  response.headers.set("Access-Control-Allow-Origin", "*")
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
   // Manejar preflight requests
-  if (request.method === 'OPTIONS') {
-    return new NextResponse(null, { 
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
       status: 204,
       headers: {
-        ...Object.fromEntries(response.headers),
-        'Content-Length': '0'
-      }
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Content-Length": "0",
+      },
     })
   }
 
@@ -25,5 +25,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/api/:path*',
+  matcher: "/api/:path*",
 }
+
