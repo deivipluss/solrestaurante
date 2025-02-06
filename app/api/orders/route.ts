@@ -2,11 +2,9 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
+// Nueva forma de configurar límites de tamaño en App Router
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
 
 export async function POST(request: Request) {
   console.log("Recibida solicitud POST en /api/orders")
