@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { uploadToCloudinary } from "@/lib/cloudinary"
+import sharp from "sharp"
 
-// Nueva forma de configurar límites de tamaño en App Router
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
+async function compressImage(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer).resize(1920, 1080, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 80 }).toBuffer()
+}
 
 export async function POST(request: Request) {
   console.log("Recibida solicitud POST en /api/orders")
@@ -18,9 +22,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Comprobante requerido" }, { status: 400 })
     }
 
-    // Verificar tamaño del archivo
-    if (receipt.size > 4.5 * 1024 * 1024) {
-      // 4.5MB en bytes
+    // Compress image
+    const buffer = await receipt.arrayBuffer()
+    const compressedImageBuffer = await compressImage(Buffer.from(buffer))
+
+    // Check compressed file size
+    if (compressedImageBuffer.length > 4.5 * 1024 * 1024) {
+      // 4.5MB in bytes
       return NextResponse.json(
         { success: false, error: "El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB" },
         { status: 413 },
@@ -30,8 +38,7 @@ export async function POST(request: Request) {
     // Cloudinary upload
     let cloudinaryUrl
     try {
-      const buffer = await receipt.arrayBuffer()
-      cloudinaryUrl = await uploadToCloudinary(Buffer.from(buffer), receipt.type)
+      cloudinaryUrl = await uploadToCloudinary(compressedImageBuffer, "image/jpeg")
       console.log("Cloudinary URL:", cloudinaryUrl)
     } catch (error) {
       console.error("Error Cloudinary:", error)

@@ -5,7 +5,6 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
 import { X } from "lucide-react"
-import imageCompression from "browser-image-compression"
 
 interface PaymentModalProps {
   isOpen: boolean
@@ -22,22 +21,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { clearCart } = useCart()
 
-  const compressImage = async (file: File) => {
-    const options = {
-      maxSizeMB: 1, // Compress to maximum 1MB
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    }
-
-    try {
-      const compressedFile = await imageCompression(file, options)
-      return compressedFile
-    } catch (error) {
-      console.error("Error compressing image:", error)
-      throw new Error("Error al comprimir la imagen")
-    }
-  }
-
   const handleConfirm = async () => {
     if (!name || !phone || !receipt) {
       alert("Por favor, complete todos los campos y adjunte el comprobante de pago.")
@@ -47,17 +30,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
     setIsSubmitting(true)
 
     try {
-      // Compress image before sending
-      const compressedReceipt = await compressImage(receipt)
-
       const formData = new FormData()
       formData.append("customerName", name)
       formData.append("customerPhone", phone)
       formData.append("totalAmount", total.toString())
       formData.append("items", JSON.stringify(cartItems))
 
-      if (compressedReceipt.type.startsWith("image/")) {
-        formData.append("receipt", compressedReceipt)
+      if (receipt.type.startsWith("image/")) {
+        formData.append("receipt", receipt)
       } else {
         alert("Por favor, adjunte una imagen válida como comprobante.")
         setIsSubmitting(false)
@@ -146,7 +126,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
                 type="file"
                 id="receipt"
                 accept="image/*"
-                onChange={(e) => setReceipt(e.target.files?.[0])}
+                onChange={(e) => setReceipt(e.target.files?.[0] || null)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
