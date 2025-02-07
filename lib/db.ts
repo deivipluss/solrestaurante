@@ -26,4 +26,19 @@ pool.on("error", (err) => {
   console.error("Error inesperado en el pool de base de datos:", err)
 })
 
+export async function testConnection() {
+  const client = await pool.connect()
+  try {
+    await client.query("SELECT NOW()")
+    console.log("Conexión a la base de datos establecida con éxito.")
+    return true
+  } catch (error) {
+    console.error("Error al conectar con la base de datos:", error)
+    return false
+  } finally {
+    client.release()
+  }
+}
+
 export default pool
+
