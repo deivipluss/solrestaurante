@@ -12,3 +12,29 @@ model User {
   name  String
   email String @unique
 }
+
+model Order {
+  id             String         @id @default(uuid())
+  customerName   String
+  customerPhone  String
+  totalAmount    Float
+  paymentProof   PaymentProof?
+  items          OrderItem[]
+  createdAt      DateTime       @default(now())
+}
+
+model PaymentProof {
+  id           String  @id @default(uuid())
+  cloudinaryUrl String
+  order        Order   @relation(fields: [orderId], references: [id])
+  orderId      String  @unique
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  itemName  String
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+}

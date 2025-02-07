@@ -1,8 +1,8 @@
+[file name]: route.ts
+[file content begin]
 import { NextResponse } from "next/server"
-import { PrismaClient } from '@prisma/client'
+import prisma from "@/app/prisma" // Importación corregida
 import { uploadToCloudinary } from "@/lib/cloudinary"
-
-const prisma = new PrismaClient()
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +14,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Comprobante requerido" }, { status: 400 })
     }
 
-    // Verificar tamaño
     const MAX_SIZE = 4.5 * 1024 * 1024
     if (receipt.size > MAX_SIZE) {
       return NextResponse.json(
@@ -23,11 +22,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Procesar archivo
     const arrayBuffer = await receipt.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Subir a Cloudinary
     let cloudinaryUrl
     try {
       cloudinaryUrl = await uploadToCloudinary(buffer, receipt.type)
@@ -40,7 +37,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Crear orden en la base de datos usando Prisma
     try {
       const order = await prisma.order.create({
         data: {
@@ -90,3 +86,4 @@ export async function POST(request: Request) {
     await prisma.$disconnect()
   }
 }
+[file content end]
