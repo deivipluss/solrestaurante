@@ -11,16 +11,14 @@ interface PaymentModalProps {
   isOpen: boolean
   onClose: () => void
   onBackToCart: () => void
-  cartItems: { name: string; price: string; quantity: number }[]
-  total: number
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCart, cartItems, total }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCart }) => {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [receipt, setReceipt] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { clearCart } = useCart()
+  const { cart, getTotal, createOrder } = useCart()
 
   const handleConfirm = async () => {
     if (!name || !phone || !receipt) {
@@ -28,58 +26,23 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       return
     }
 
-    setIsSubmitting(true)
-
-    const formData = new FormData()
-    formData.append("customerName", name)
-    formData.append("customerPhone", phone)
-    formData.append("totalAmount", total.toString())
-    formData.append("items", JSON.stringify(cartItems))
-
     if (receipt.type.startsWith("image/")) {
       // Verificar tamaño antes de enviar
       if (receipt.size > 4.5 * 1024 * 1024) {
         alert("El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB")
-        setIsSubmitting(false)
         return
       }
-      formData.append("receipt", receipt)
     } else {
       alert("Por favor, adjunte una imagen válida como comprobante.")
-      setIsSubmitting(false)
       return
     }
 
+    setIsSubmitting(true)
+
     try {
-      console.log("Enviando datos al servidor:", {
-        customerName: name,
-        customerPhone: phone,
-        totalAmount: total,
-        itemsCount: cartItems.length,
-        receiptName: receipt.name,
-        receiptType: receipt.type,
-        receiptSize: `${(receipt.size / (1024 * 1024)).toFixed(2)}MB`,
-      })
-
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Error del servidor: ${response.status} - ${errorText}`)
-      }
-
-      const result = await response.json()
-
-      if (result.success) {
-        clearCart()
-        onClose()
-        alert("¡Pedido realizado con éxito!")
-      } else {
-        throw new Error(result.error || "Error desconocido al crear el pedido")
-      }
+      await createOrder(name, phone, receipt)
+      onClose()
+      alert("¡Pedido realizado con éxito!")
     } catch (error) {
       console.error("Error detallado:", error)
       alert(
@@ -89,6 +52,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       setIsSubmitting(false)
     }
   }
+
+  const total = getTotal()
 
   return (
     <AnimatePresence>
@@ -119,7 +84,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Resumen del pedido:</h3>
                 <div className="space-y-2">
-                  {cartItems.map((item, index) => (
+                  {cart.map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <span className="font-medium">
                         {item.name} x{item.quantity}

@@ -26,7 +26,7 @@ interface CartContextType {
   getTotalQuantity: () => number
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  createOrder: (customerName: string, customerPhone: string, paymentReceipt: File) => Order
+  createOrder: (customerName: string, customerPhone: string, paymentReceipt: File) => Promise<void>
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -73,16 +73,50 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [cart])
 
   const createOrder = useCallback(
-    (customerName: string, customerPhone: string, paymentReceipt: File): Order => {
-      return {
+    async (customerName: string, customerPhone: string, paymentReceipt: File): Promise<void> => {
+      const order: Order = {
         items: [...cart],
         total: getTotal(),
         customerName,
         customerPhone,
         paymentReceipt,
       }
+
+      const formData = new FormData()
+      formData.append("customerName", order.customerName)
+      formData.append("customerPhone", order.customerPhone)
+      formData.append("totalAmount", order.total.toString())
+      formData.append("items", JSON.stringify(order.items))
+      formData.append("receipt", order.paymentReceipt)
+
+      try {
+        const response = await fetch("/api/orders", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          throw new Error(`Error del servidor: ${response.status} - ${errorText}`)
+        }
+
+        const result = await response.json()
+
+        if (result.success) {
+          clearCart()
+          setIsOpen(false)
+          alert("¡Pedido realizado con éxito!")
+        } else {
+          throw new Error(result.error || "Error desconocido al crear el pedido")
+        }
+      } catch (error) {
+        console.error("Error detallado:", error)
+        alert(
+          `Hubo un error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`,
+        )
+      }
     },
-    [cart, getTotal],
+    [cart, getTotal, clearCart],
   )
 
   const contextValue = useMemo(

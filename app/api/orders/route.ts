@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
-import pool from "@/lib/db"
+import prisma from "@/lib/prisma"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
 export async function POST(request: Request) {
-  let client
-
   try {
     const formData = await request.formData()
     const receipt = formData.get("receipt") as File
@@ -40,56 +38,40 @@ export async function POST(request: Request) {
       )
     }
 
-    // Iniciar transacción DB
-    client = await pool.connect()
-    await client.query('BEGIN')
-
+    // Crear orden en la base de datos usando Prisma
     try {
-      // 1. Insertar orden principal
-      const orderResult = await client.query(
-        `INSERT INTO orders (customer_name, customer_phone, total_amount) 
-         VALUES ($1, $2, $3) 
-         RETURNING id`,
-        [
-          formData.get("customerName"),
-          formData.get("customerPhone"),
-          formData.get("totalAmount")
-        ]
-      )
-      const orderId = orderResult.rows[0].id
-
-      // 2. Insertar comprobante de pago
-      await client.query(
-        `INSERT INTO payment_proofs (order_id, cloudinary_url) 
-         VALUES ($1, $2)`,
-        [orderId, cloudinaryUrl]
-      )
-
-      // 3. Insertar items del pedido
-      for (const item of items) {
-        await client.query(
-          `INSERT INTO order_items (order_id, item_name, quantity, price) 
-           VALUES ($1, $2, $3, $4)`,
-          [
-            orderId,
-            item.name,
-            item.quantity,
-            parseFloat(item.price.replace("S/", ""))
-          ]
-        )
-      }
-
-      await client.query('COMMIT')
+      const order = await prisma.order.create({
+        data: {
+          customerName: formData.get("customerName") as string,
+          customerPhone: formData.get("customerPhone") as string,
+          totalAmount: parseFloat(formData.get("totalAmount") as string),
+          paymentProof: {
+            create: {
+              cloudinaryUrl: cloudinaryUrl
+            }
+          },
+          items: {
+            create: items.map((item: any) => ({
+              itemName: item.name,
+              quantity: item.quantity,
+              price: parseFloat(item.price.replace("S/", ""))
+            }))
+          }
+        },
+        include: {
+          paymentProof: true,
+          items: true
+        }
+      })
 
       return NextResponse.json({ 
         success: true, 
-        orderId: orderId,
+        orderId: order.id,
         receiptUrl: cloudinaryUrl 
       })
 
     } catch (error) {
-      await client.query('ROLLBACK')
-      console.error("Error en transacción:", error)
+      console.error("Error en base de datos:", error)
       return NextResponse.json(
         { success: false, error: "Error en base de datos" },
         { status: 500 }
@@ -102,7 +84,5 @@ export async function POST(request: Request) {
       { success: false, error: "Error al procesar la orden" },
       { status: 500 }
     )
-  } finally {
-    if (client) client.release()
   }
 }
