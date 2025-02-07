@@ -105,15 +105,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         if (result.success) {
           clearCart()
           setIsOpen(false)
-          alert("¡Pedido realizado con éxito!")
+          // No mostramos el alert aquí, lo manejaremos en el componente
+          return
         } else {
           throw new Error(result.error || "Error desconocido al crear el pedido")
         }
       } catch (error) {
         console.error("Error detallado:", error)
-        alert(
-          `Hubo un error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`,
-        )
+        throw error // Propagamos el error para manejarlo en el componente
       }
     },
     [cart, getTotal, clearCart],

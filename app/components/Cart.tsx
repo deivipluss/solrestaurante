@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/app/context/CartContext"
-import { Trash } from "lucide-react"
+import { Trash } from 'lucide-react'
 import PaymentModal from "./PaymentModal"
 
 const Cart = () => {
@@ -170,12 +170,9 @@ const Cart = () => {
           setIsOpen(false)
         }}
         onBackToCart={handleBackToCart}
-        cartItems={cart}
-        total={getTotal()}
       />
     </>
   )
 }
 
 export default Cart
-
