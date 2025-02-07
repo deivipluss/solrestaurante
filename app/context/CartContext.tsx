@@ -13,7 +13,7 @@ interface Order {
   total: number
   customerName: string
   customerPhone: string
-  paymentReceipt: File | null
+  paymentReceipt: File
 }
 
 interface CartContextType {
