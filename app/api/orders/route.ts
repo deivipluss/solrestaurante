@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { PrismaClient } from '@prisma/client'
 import { uploadToCloudinary } from "@/lib/cloudinary"
+
+const prisma = new PrismaClient()
 
 export async function POST(request: Request) {
   try {
@@ -51,7 +53,7 @@ export async function POST(request: Request) {
             }
           },
           items: {
-            create: items.map((item: any) => ({
+            create: items.map((item: { name: string; quantity: number; price: string }) => ({
               itemName: item.name,
               quantity: item.quantity,
               price: parseFloat(item.price.replace("S/", ""))
@@ -84,5 +86,7 @@ export async function POST(request: Request) {
       { success: false, error: "Error al procesar la orden" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
