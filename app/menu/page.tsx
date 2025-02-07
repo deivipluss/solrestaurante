@@ -2,15 +2,15 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { menuSections } from "./data"
-import type { TestimonialProps, MenuSection } from "./types"
+import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote } from "lucide-react"
+import { useCart } from "@/app/context/CartContext"
 import Cart from "@/app/components/Cart"
 import MenuCard from "@/app/components/MenuCard"
-import { useCart } from "@/app/context/CartContext"
+import AdminTerminal from "@/app/components/adminterminal"
+import { menuSections } from "@/app/menu/data"
 
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
   title,
@@ -30,7 +30,7 @@ const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => 
   </motion.div>
 )
 
-const Testimonial: React.FC<TestimonialProps> = ({ text, author }) => (
+const Testimonial: React.FC<{ text: string; author: string }> = ({ text, author }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -48,7 +48,8 @@ const MenuPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
   const [activeSection, setActiveSection] = useState<string>(menuSections[0].title)
   const [searchTerm, setSearchTerm] = useState<string>("")
-  const [filteredSections, setFilteredSections] = useState<MenuSection[]>(menuSections)
+  const [filteredSections, setFilteredSections] = useState(menuSections)
+  const [showAdminTerminal, setShowAdminTerminal] = useState(false)
   const menuSectionRef = useRef<HTMLDivElement>(null)
   const categoryRef = useRef<HTMLDivElement>(null)
   const chefRecommendationsRef = useRef<HTMLElement>(null)
@@ -163,29 +164,31 @@ const MenuPage: React.FC = () => {
           </div>
         </div>
 
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-white border-t border-gray-100"
-          >
-            <div className="px-4 py-2 space-y-1">
-              {["Inicio", "Menú", "Nosotros", "Reservas"].map((item) => (
-                <Link
-                  key={item}
-                  href={item === "Menú" ? "#menu" : `/${item.toLowerCase()}`}
-                  className={`block py-2 ${
-                    item === "Menú" ? "text-amber-700 font-medium" : "text-gray-600 hover:text-amber-600"
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="md:hidden bg-white border-t border-gray-100"
+            >
+              <div className="px-4 py-2 space-y-1">
+                {["Inicio", "Menú", "Nosotros", "Reservas"].map((item) => (
+                  <Link
+                    key={item}
+                    href={item === "Menú" ? "#menu" : `/${item.toLowerCase()}`}
+                    className={`block py-2 ${
+                      item === "Menú" ? "text-amber-700 font-medium" : "text-gray-600 hover:text-amber-600"
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Hero Section */}
@@ -388,6 +391,46 @@ const MenuPage: React.FC = () => {
               author="Ana L."
             />
           </div>
+        </div>
+      </section>
+
+      {/* Admin Terminal Section */}
+      <section className="py-16 md:py-24 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 md:mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
+              Terminal de Administrador
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Gestiona los pedidos y visualiza la información en tiempo real
+            </p>
+          </motion.div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="mx-auto block mb-8 bg-amber-600 text-white px-6 py-3 rounded-lg hover:bg-amber-700 transition-colors shadow-md"
+            onClick={() => setShowAdminTerminal(!showAdminTerminal)}
+          >
+            {showAdminTerminal ? "Ocultar Terminal" : "Mostrar Terminal"}
+          </motion.button>
+          <AnimatePresence>
+            {showAdminTerminal && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AdminTerminal />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
