@@ -9,7 +9,7 @@ import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote
 import { useCart } from "@/app/context/CartContext"
 import Cart from "@/app/components/Cart"
 import MenuCard from "@/app/components/MenuCard"
-import AdminTerminal from "@/app/components/page"
+import AdminTerminal from "@/app/terminal/page"
 import { menuSections } from "@/app/menu/data"
 
 const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
