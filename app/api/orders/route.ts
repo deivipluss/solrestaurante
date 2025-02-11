@@ -58,6 +58,7 @@ export async function POST(request: Request) {
           customerName,
           customerPhone,
           totalAmount,
+          status: "PENDING",
           paymentProof: {
             create: {
               cloudinaryUrl,
@@ -115,3 +116,33 @@ export async function GET() {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const { orderId, status } = await request.json()
+
+    if (!orderId || !status) {
+      return NextResponse.json({ success: false, error: "Faltan datos requeridos" }, { status: 400 })
+    }
+
+    const validStatuses = ["PENDING", "CONFIRMED", "CANCELLED", "DELIVERED"]
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ success: false, error: "Estado de pedido inválido" }, { status: 400 })
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: {
+        items: true,
+        paymentProof: true,
+      },
+    })
+
+    return NextResponse.json({ success: true, order: updatedOrder })
+  } catch (error) {
+    console.error("Error updating order:", error)
+    return NextResponse.json({ success: false, error: "Error al actualizar el pedido" }, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
+  }
+}

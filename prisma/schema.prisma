@@ -18,9 +18,17 @@ model Order {
   customerName   String
   customerPhone  String
   totalAmount    Float
+  status         OrderStatus    @default(PENDING)
   paymentProof   PaymentProof?
   items          OrderItem[]
   createdAt      DateTime       @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  DELIVERED
 }
 
 model PaymentProof {

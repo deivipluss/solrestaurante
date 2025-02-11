@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Bell, ChevronDown, ChevronUp, Volume2, VolumeX } from 'lucide-react'
 
@@ -11,7 +11,7 @@ interface Order {
   totalAmount: number
   items: { itemName: string; quantity: number; price: number }[]
   createdAt: string
-  status: "pending" | "processing" | "completed"
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "DELIVERED"
 }
 
 const AdminTerminal: React.FC = () => {
@@ -21,11 +21,11 @@ const AdminTerminal: React.FC = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [newOrderAlert, setNewOrderAlert] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const playAlertSound = useCallback(() => {
-    if (soundEnabled) {
-      const audio = new Audio("/alert-sound.mp3") // Asegúrate de tener este archivo en tu carpeta public
-      audio.play()
+    if (soundEnabled && audioRef.current) {
+      audioRef.current.play().catch(error => console.error("Error playing sound:", error))
     }
   }, [soundEnabled])
 
@@ -58,22 +58,27 @@ const AdminTerminal: React.FC = () => {
     return () => clearInterval(intervalId)
   }, [fetchOrders])
 
+  useEffect(() => {
+    audioRef.current = new Audio("/alert-sound.mp3")
+  }, [])
+
   const toggleOrderExpansion = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId)
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`, {
+      const response = await fetch(`/api/orders`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ orderId, status: newStatus }),
       })
       if (!response.ok) {
         throw new Error('Failed to update order status')
       }
+      const updatedOrder = await response.json()
       setOrders(orders.map(order => 
         order.id === orderId ? { ...order, status: newStatus } : order
       ))
@@ -145,8 +150,9 @@ const AdminTerminal: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     className={`bg-white rounded-lg shadow-md overflow-hidden border ${
-                      order.status === 'pending' ? 'border-amber-500' :
-                      order.status === 'processing' ? 'border-blue-500' :
+                      order.status === 'PENDING' ? 'border-amber-500' :
+                      order.status === 'CONFIRMED' ? 'border-blue-500' :
+                      order.status === 'CANCELLED' ? 'border-red-500' :
                       'border-green-500'
                     }`}
                   >
@@ -166,13 +172,15 @@ const AdminTerminal: React.FC = () => {
                       </div>
                       <div className="mt-2 flex justify-between items-center">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          order.status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                          order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                          order.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
+                          order.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
+                          order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
                           'bg-green-100 text-green-800'
                         }`}>
-                          {order.status === 'pending' ? 'Pendiente' :
-                           order.status === 'processing' ? 'En proceso' :
-                           'Completado'}
+                          {order.status === 'PENDING' ? 'Pendiente' :
+                           order.status === 'CONFIRMED' ? 'Confirmado' :
+                           order.status === 'CANCELLED' ? 'Cancelado' :
+                           'Entregado'}
                         </span>
                         {expandedOrder === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </div>
@@ -197,20 +205,30 @@ const AdminTerminal: React.FC = () => {
                               ))}
                             </ul>
                             <div className="mt-4 flex justify-end space-x-2">
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'processing')}
-                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                                disabled={order.status !== 'pending'}
-                              >
-                                Procesar
-                              </button>
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'completed')}
-                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                                disabled={order.status === 'completed'}
-                              >
-                                Completar
-                              </button>
+                              {order.status === 'PENDING' && (
+                                <>
+                                  <button
+                                    onClick={() => updateOrderStatus(order.id, 'CONFIRMED')}
+                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                  >
+                                    Confirmar
+                                  </button>
+                                  <button
+                                    onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                  >
+                                    Cancelar
+                                  </button>
+                                </>
+                              )}
+                              {order.status === 'CONFIRMED' && (
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'DELIVERED')}
+                                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                >
+                                  Entregado
+                                </button>
+                              )}
                             </div>
                           </div>
                         </motion.div>
