@@ -37,6 +37,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = useCallback((item: CartItem) => {
     setCart((prevCart) => {
+      if (!Array.isArray(prevCart)) {
+        console.error("Cart is not an array:", prevCart)
+        return [item]
+      }
       const existingItem = prevCart.find((cartItem) => cartItem.name === item.name)
       if (existingItem) {
         return prevCart.map((cartItem) =>

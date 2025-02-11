@@ -65,7 +65,7 @@ const MenuPage: React.FC = () => {
         ),
       }))
       .filter((section) => section.items.length > 0)
-    setFilteredSections(filtered)
+    setFilteredSections(filtered.length > 0 ? filtered : [])
 
     if (filtered.length > 0 && !filtered.some((section) => section.title === activeSection)) {
       setActiveSection(filtered[0].title)
@@ -249,21 +249,22 @@ const MenuPage: React.FC = () => {
         <nav ref={categoryRef} className="top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div className="flex overflow-x-auto space-x-4 py-6 category-scroll">
-              {filteredSections.map((section) => (
-                <motion.button
-                  key={section.title}
-                  onClick={() => scrollToSection(section.title)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
-                    activeSection === section.title
-                      ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
-                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {section.title}
-                </motion.button>
-              ))}
+              {Array.isArray(filteredSections) &&
+                filteredSections.map((section) => (
+                  <motion.button
+                    key={section.title}
+                    onClick={() => scrollToSection(section.title)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
+                      activeSection === section.title
+                        ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
+                        : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {section.title}
+                  </motion.button>
+                ))}
             </div>
           </div>
         </nav>
@@ -313,49 +314,50 @@ const MenuPage: React.FC = () => {
             </p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {menuSections
-              .flatMap((section) => section.items.filter((item) => item.popular))
-              .slice(0, 3)
-              .map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-amber-200"
-                >
-                  <div className="relative h-64 w-full">
-                    <Image
-                      src={item.image || "/placeholder.svg?height=400&width=300"}
-                      alt={item.name}
-                      className="object-cover"
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      priority
-                    />
-                    <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
-                      <Star size={16} className="text-amber-500" />
-                      Recomendado
+            {Array.isArray(menuSections) &&
+              menuSections
+                .flatMap((section) => section.items.filter((item) => item.popular))
+                .slice(0, 3)
+                .map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-amber-200"
+                  >
+                    <div className="relative h-64 w-full">
+                      <Image
+                        src={item.image || "/placeholder.svg?height=400&width=300"}
+                        alt={item.name}
+                        className="object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority
+                      />
+                      <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                        <Star size={16} className="text-amber-500" />
+                        Recomendado
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-heading font-bold mb-2 text-amber-800">{item.name}</h3>
-                    {item.description && <p className="text-amber-700 mb-4 text-sm">{item.description}</p>}
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-amber-600">{item.price}</span>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-yellow-500 transition-all shadow-md text-sm font-semibold"
-                        onClick={() => setIsCartOpen(true)}
-                      >
-                        Ordenar Ahora
-                      </motion.button>
+                    <div className="p-6">
+                      <h3 className="text-xl font-heading font-bold mb-2 text-amber-800">{item.name}</h3>
+                      {item.description && <p className="text-amber-700 mb-4 text-sm">{item.description}</p>}
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-bold text-amber-600">{item.price}</span>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-yellow-500 transition-all shadow-md text-sm font-semibold"
+                          onClick={() => setIsCartOpen(true)}
+                        >
+                          Ordenar Ahora
+                        </motion.button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
           </div>
         </div>
       </section>

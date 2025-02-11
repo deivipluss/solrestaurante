@@ -26,7 +26,7 @@ const AdminTerminal: React.FC = () => {
           throw new Error("Failed to fetch orders")
         }
         const data = await response.json()
-        setOrders(data)
+        setOrders(Array.isArray(data.orders) ? data.orders : [])
       } catch (err) {
         setError("Error al cargar los pedidos. Por favor, intente de nuevo.")
       } finally {
@@ -35,10 +35,8 @@ const AdminTerminal: React.FC = () => {
     }
 
     fetchOrders()
-    // Set up polling to fetch orders every 30 seconds
     const intervalId = setInterval(fetchOrders, 30000)
 
-    // Clean up the interval on component unmount
     return () => clearInterval(intervalId)
   }, [])
 
@@ -53,9 +51,7 @@ const AdminTerminal: React.FC = () => {
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Terminal de Administrador</h2>
-      {orders.length === 0 ? (
-        <p className="text-center text-gray-600">No hay pedidos disponibles.</p>
-      ) : (
+      {Array.isArray(orders) && orders.length > 0 ? (
         <div className="space-y-6">
           {orders.map((order) => (
             <motion.div
@@ -88,6 +84,8 @@ const AdminTerminal: React.FC = () => {
             </motion.div>
           ))}
         </div>
+      ) : (
+        <p className="text-center text-gray-600">No hay pedidos disponibles.</p>
       )}
     </div>
   )
