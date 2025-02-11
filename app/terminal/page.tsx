@@ -22,6 +22,7 @@ const AdminTerminal: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [newOrderAlert, setNewOrderAlert] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const workerRef = useRef<Worker | null>(null)
 
   const playAlertSound = useCallback(() => {
     if (soundEnabled && audioRef.current) {
@@ -45,22 +46,57 @@ const AdminTerminal: React.FC = () => {
       }
       
       setOrders(newOrders)
+      setIsLoading(false)
     } catch (err) {
+      console.error("Error fetching orders:", err)
       setError("Error al cargar los pedidos. Por favor, intente de nuevo.")
-    } finally {
       setIsLoading(false)
     }
   }, [orders.length, playAlertSound])
 
   useEffect(() => {
-    fetchOrders()
-    const intervalId = setInterval(fetchOrders, 30000)
-    return () => clearInterval(intervalId)
-  }, [fetchOrders])
-
-  useEffect(() => {
     audioRef.current = new Audio("/alert-sound.mp3")
-  }, [])
+
+    // Inicializar Web Worker
+    workerRef.current = new Worker(new URL('../workers/keepAlive.worker.ts', import.meta.url))
+
+    const keepAlive = () => {
+      if (workerRef.current) {
+        workerRef.current.postMessage('keepAlive')
+      }
+      setTimeout(keepAlive, 20000)
+    }
+    keepAlive()
+
+    const updateInterval = 30000 // 30 segundos
+    let intervalId: NodeJS.Timeout
+
+    const startInterval = (interval: number) => {
+      clearInterval(intervalId)
+      intervalId = setInterval(fetchOrders, interval)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        startInterval(60000) // Actualizar cada minuto cuando no está visible
+      } else {
+        startInterval(updateInterval)
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    startInterval(updateInterval)
+
+    fetchOrders() // Fetch initial orders
+
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      if (workerRef.current) {
+        workerRef.current.terminate()
+      }
+    }
+  }, [fetchOrders])
 
   const toggleOrderExpansion = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId)
@@ -101,7 +137,7 @@ const AdminTerminal: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-lg text-center">
           <p className="text-red-600 text-xl font-semibold mb-4">{error}</p>
           <button 
-            onClick={fetchOrders}
+            onClick={() => fetchOrders()}
             className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors"
           >
             Intentar de nuevo
@@ -141,7 +177,7 @@ const AdminTerminal: React.FC = () => {
           </AnimatePresence>
 
           <div className="p-6">
-            {Array.isArray(orders) && orders.length > 0 ? (
+            {orders.length > 0 ? (
               <div className="space-y-6">
                 {orders.map((order) => (
                   <motion.div
