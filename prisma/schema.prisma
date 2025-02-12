@@ -22,6 +22,7 @@ model Order {
   paymentProof   PaymentProof?
   items          OrderItem[]
   createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 enum OrderStatus {
@@ -32,10 +33,10 @@ enum OrderStatus {
 }
 
 model PaymentProof {
-  id           String  @id @default(uuid())
+  id            String  @id @default(uuid())
   cloudinaryUrl String
-  order        Order   @relation(fields: [orderId], references: [id])
-  orderId      String  @unique
+  order         Order   @relation(fields: [orderId], references: [id])
+  orderId       String  @unique
 }
 
 model OrderItem {
