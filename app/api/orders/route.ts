@@ -95,9 +95,16 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const url = new URL(request.url)
+    const since = url.searchParams.get("since")
+    const sinceDate = since ? new Date(Number(since)) : new Date(0)
+
     const orders = await prisma.order.findMany({
+      where: {
+        OR: [{ createdAt: { gt: sinceDate } }, { updatedAt: { gt: sinceDate } }],
+      },
       include: {
         items: true,
         paymentProof: true,
@@ -146,3 +153,4 @@ export async function PATCH(request: Request) {
     await prisma.$disconnect()
   }
 }
+

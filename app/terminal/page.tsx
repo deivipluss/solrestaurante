@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState, useEffect, useCallback, useRef } from "react"
+import type React from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Bell, ChevronDown, ChevronUp, Volume2, VolumeX } from 'lucide-react'
+import { ChevronDown, ChevronUp, Volume2, VolumeX } from "lucide-react"
 
 interface Order {
   id: string
@@ -23,52 +24,66 @@ const AdminTerminal: React.FC = () => {
   const [newOrderAlert, setNewOrderAlert] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const workerRef = useRef<Worker | null>(null)
+  const lastFetchTimeRef = useRef<number>(0)
 
   const playAlertSound = useCallback(() => {
     if (soundEnabled && audioRef.current) {
-      audioRef.current.play().catch(error => console.error("Error playing sound:", error))
+      audioRef.current.play().catch((error) => console.error("Error playing sound:", error))
     }
   }, [soundEnabled])
 
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await fetch("/api/orders")
+      const currentTime = Date.now()
+      const response = await fetch(`/api/orders?since=${lastFetchTimeRef.current}`)
       if (!response.ok) {
         throw new Error("Failed to fetch orders")
       }
       const data = await response.json()
       const newOrders = Array.isArray(data.orders) ? data.orders : []
-      
-      if (newOrders.length > orders.length) {
+
+      if (newOrders.length > 0) {
+        setOrders((prevOrders) => {
+          const updatedOrders = [...prevOrders]
+          newOrders.forEach((newOrder) => {
+            const index = updatedOrders.findIndex((order) => order.id === newOrder.id)
+            if (index !== -1) {
+              updatedOrders[index] = newOrder
+            } else {
+              updatedOrders.unshift(newOrder)
+            }
+          })
+          return updatedOrders
+        })
         playAlertSound()
         setNewOrderAlert(true)
         setTimeout(() => setNewOrderAlert(false), 5000)
       }
-      
-      setOrders(newOrders)
+
+      lastFetchTimeRef.current = currentTime
       setIsLoading(false)
     } catch (err) {
       console.error("Error fetching orders:", err)
       setError("Error al cargar los pedidos. Por favor, intente de nuevo.")
       setIsLoading(false)
     }
-  }, [orders.length, playAlertSound])
+  }, [playAlertSound])
 
   useEffect(() => {
     audioRef.current = new Audio("/alert-sound.mp3")
 
     // Inicializar Web Worker
-    workerRef.current = new Worker(new URL('../workers/keepAlive.worker.ts', import.meta.url))
+    workerRef.current = new Worker(new URL("../workers/keepAlive.worker.ts", import.meta.url))
 
     const keepAlive = () => {
       if (workerRef.current) {
-        workerRef.current.postMessage('keepAlive')
+        workerRef.current.postMessage("keepAlive")
       }
       setTimeout(keepAlive, 20000)
     }
     keepAlive()
 
-    const updateInterval = 30000 // 30 segundos
+    const updateInterval = 10000 // 10 segundos
     let intervalId: NodeJS.Timeout
 
     const startInterval = (interval: number) => {
@@ -102,24 +117,22 @@ const AdminTerminal: React.FC = () => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId)
   }
 
-  const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
+  const updateOrderStatus = async (orderId: string, newStatus: Order["status"]) => {
     try {
       const response = await fetch(`/api/orders`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ orderId, status: newStatus }),
       })
       if (!response.ok) {
-        throw new Error('Failed to update order status')
+        throw new Error("Failed to update order status")
       }
       const updatedOrder = await response.json()
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      ))
+      setOrders(orders.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)))
     } catch (error) {
-      console.error('Error updating order status:', error)
+      console.error("Error updating order status:", error)
     }
   }
 
@@ -136,7 +149,7 @@ const AdminTerminal: React.FC = () => {
       <div className="flex justify-center items-center h-screen bg-amber-50">
         <div className="bg-white p-6 rounded-lg shadow-lg text-center">
           <p className="text-red-600 text-xl font-semibold mb-4">{error}</p>
-          <button 
+          <button
             onClick={() => fetchOrders()}
             className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors"
           >
@@ -162,7 +175,7 @@ const AdminTerminal: React.FC = () => {
               </button>
             </div>
           </div>
-          
+
           <AnimatePresence>
             {newOrderAlert && (
               <motion.div
@@ -186,13 +199,16 @@ const AdminTerminal: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     className={`bg-white rounded-lg shadow-md overflow-hidden border ${
-                      order.status === 'PENDING' ? 'border-amber-500' :
-                      order.status === 'CONFIRMED' ? 'border-blue-500' :
-                      order.status === 'CANCELLED' ? 'border-red-500' :
-                      'border-green-500'
+                      order.status === "PENDING"
+                        ? "border-amber-500"
+                        : order.status === "CONFIRMED"
+                          ? "border-blue-500"
+                          : order.status === "CANCELLED"
+                            ? "border-red-500"
+                            : "border-green-500"
                     }`}
                   >
-                    <div 
+                    <div
                       className="p-4 cursor-pointer hover:bg-amber-50 transition-colors"
                       onClick={() => toggleOrderExpansion(order.id)}
                     >
@@ -207,16 +223,24 @@ const AdminTerminal: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-2 flex justify-between items-center">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          order.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
-                          order.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
-                          order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-                          'bg-green-100 text-green-800'
-                        }`}>
-                          {order.status === 'PENDING' ? 'Pendiente' :
-                           order.status === 'CONFIRMED' ? 'Confirmado' :
-                           order.status === 'CANCELLED' ? 'Cancelado' :
-                           'Entregado'}
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            order.status === "PENDING"
+                              ? "bg-amber-100 text-amber-800"
+                              : order.status === "CONFIRMED"
+                                ? "bg-blue-100 text-blue-800"
+                                : order.status === "CANCELLED"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {order.status === "PENDING"
+                            ? "Pendiente"
+                            : order.status === "CONFIRMED"
+                              ? "Confirmado"
+                              : order.status === "CANCELLED"
+                                ? "Cancelado"
+                                : "Entregado"}
                         </span>
                         {expandedOrder === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </div>
@@ -241,25 +265,25 @@ const AdminTerminal: React.FC = () => {
                               ))}
                             </ul>
                             <div className="mt-4 flex justify-end space-x-2">
-                              {order.status === 'PENDING' && (
+                              {order.status === "PENDING" && (
                                 <>
                                   <button
-                                    onClick={() => updateOrderStatus(order.id, 'CONFIRMED')}
+                                    onClick={() => updateOrderStatus(order.id, "CONFIRMED")}
                                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                                   >
                                     Confirmar
                                   </button>
                                   <button
-                                    onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
+                                    onClick={() => updateOrderStatus(order.id, "CANCELLED")}
                                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                                   >
                                     Cancelar
                                   </button>
                                 </>
                               )}
-                              {order.status === 'CONFIRMED' && (
+                              {order.status === "CONFIRMED" && (
                                 <button
-                                  onClick={() => updateOrderStatus(order.id, 'DELIVERED')}
+                                  onClick={() => updateOrderStatus(order.id, "DELIVERED")}
                                   className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                                 >
                                   Entregado
@@ -284,3 +308,4 @@ const AdminTerminal: React.FC = () => {
 }
 
 export default AdminTerminal
+
