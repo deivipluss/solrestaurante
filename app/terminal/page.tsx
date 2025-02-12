@@ -68,7 +68,7 @@ const AdminTerminal: React.FC = () => {
       if (newOrders.length > 0) {
         setOrders((prevOrders) => {
           const updatedOrders = [...prevOrders]
-          newOrders.forEach((newOrder) => {
+          newOrders.forEach((newOrder: Order) => {
             const index = updatedOrders.findIndex((order) => order.id === newOrder.id)
             if (index !== -1) {
               updatedOrders[index] = newOrder
