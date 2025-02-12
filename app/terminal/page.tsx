@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, ChevronUp, Volume2, VolumeX } from "lucide-react"
+import { ChevronDown, ChevronUp, Volume2, VolumeX, ImageIcon } from "lucide-react"
 
 interface Order {
   id: string
@@ -13,6 +13,9 @@ interface Order {
   items: { itemName: string; quantity: number; price: number }[]
   createdAt: string
   status: "PENDING" | "CONFIRMED" | "CANCELLED" | "DELIVERED"
+  paymentProof: {
+    cloudinaryUrl: string
+  }
 }
 
 const AdminTerminal: React.FC = () => {
@@ -22,15 +25,31 @@ const AdminTerminal: React.FC = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [newOrderAlert, setNewOrderAlert] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const workerRef = useRef<Worker | null>(null)
   const lastFetchTimeRef = useRef<number>(0)
+  const alertIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const playAlertSound = useCallback(() => {
     if (soundEnabled && audioRef.current) {
       audioRef.current.play().catch((error) => console.error("Error playing sound:", error))
     }
   }, [soundEnabled])
+
+  const checkPendingOrders = useCallback(() => {
+    const hasPendingOrders = orders.some((order) => order.status === "PENDING" || order.status === "CONFIRMED")
+    if (hasPendingOrders) {
+      playAlertSound()
+      setNewOrderAlert(true)
+    } else {
+      setNewOrderAlert(false)
+      if (alertIntervalRef.current) {
+        clearInterval(alertIntervalRef.current)
+        alertIntervalRef.current = null
+      }
+    }
+  }, [orders, playAlertSound])
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -55,9 +74,10 @@ const AdminTerminal: React.FC = () => {
           })
           return updatedOrders
         })
-        playAlertSound()
-        setNewOrderAlert(true)
-        setTimeout(() => setNewOrderAlert(false), 5000)
+
+        if (!alertIntervalRef.current) {
+          alertIntervalRef.current = setInterval(checkPendingOrders, 30000) // Verificar cada 30 segundos
+        }
       }
 
       lastFetchTimeRef.current = currentTime
@@ -67,7 +87,7 @@ const AdminTerminal: React.FC = () => {
       setError("Error al cargar los pedidos. Por favor, intente de nuevo.")
       setIsLoading(false)
     }
-  }, [playAlertSound])
+  }, [checkPendingOrders])
 
   useEffect(() => {
     audioRef.current = new Audio("/alert-sound.mp3")
@@ -106,6 +126,9 @@ const AdminTerminal: React.FC = () => {
 
     return () => {
       clearInterval(intervalId)
+      if (alertIntervalRef.current) {
+        clearInterval(alertIntervalRef.current)
+      }
       document.removeEventListener("visibilitychange", handleVisibilityChange)
       if (workerRef.current) {
         workerRef.current.terminate()
@@ -134,6 +157,14 @@ const AdminTerminal: React.FC = () => {
     } catch (error) {
       console.error("Error updating order status:", error)
     }
+  }
+
+  const openImageModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl)
+  }
+
+  const closeImageModal = () => {
+    setSelectedImage(null)
   }
 
   if (isLoading) {
@@ -243,6 +274,21 @@ const AdminTerminal: React.FC = () => {
                                 : "Entregado"}
                         </span>
                         {expandedOrder === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        <div className="flex items-center space-x-2">
+                          <img
+                            src={order.paymentProof.cloudinaryUrl || "/placeholder.svg"}
+                            alt="Vista previa del comprobante"
+                            className="w-10 h-10 object-cover rounded-md cursor-pointer"
+                            onClick={() => openImageModal(order.paymentProof.cloudinaryUrl)}
+                          />
+                          <button
+                            onClick={() => openImageModal(order.paymentProof.cloudinaryUrl)}
+                            className="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center"
+                          >
+                            <ImageIcon size={16} className="mr-1" />
+                            Ver comprobante
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <AnimatePresence>
@@ -303,6 +349,21 @@ const AdminTerminal: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal para mostrar la imagen */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-auto">
+            <img src={selectedImage || "/placeholder.svg"} alt="Comprobante de pago" className="max-w-full h-auto" />
+            <button
+              onClick={closeImageModal}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
