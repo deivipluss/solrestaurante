@@ -187,10 +187,11 @@ const AdminTerminal: React.FC = () => {
   }
 
   const sendWhatsAppMessage = (phoneNumber: string, order: Order) => {
+    const formattedPhoneNumber = phoneNumber.startsWith("+51") ? phoneNumber : `+51${phoneNumber}`
     const items = order.items.map((item) => `${item.quantity}x ${item.itemName}`).join("\n")
     const message = `¡Hola! Tu pedido ha sido confirmado:\n\n${items}\n\nTotal: S/ ${order.totalAmount.toFixed(2)}\n\nPor favor, recógelo en 30 minutos. ¡Gracias!`
     const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhoneNumber}&text=${encodedMessage}`
     window.open(whatsappUrl, "_blank")
   }
 
@@ -270,7 +271,9 @@ const AdminTerminal: React.FC = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-semibold text-gray-800">{order.customerName}</h3>
-                          <p className="text-sm text-gray-600">{order.customerPhone}</p>
+                          <p className="text-sm text-gray-600">
+                            {order.customerPhone.startsWith("+51") ? order.customerPhone : `+51${order.customerPhone}`}
+                          </p>
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-amber-600">S/ {order.totalAmount.toFixed(2)}</p>
