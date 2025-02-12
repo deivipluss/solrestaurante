@@ -37,19 +37,23 @@ const AdminTerminal: React.FC = () => {
     }
   }, [soundEnabled])
 
+  const stopAlertSound = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+  }, [])
+
   const checkPendingOrders = useCallback(() => {
     const hasPendingOrders = orders.some((order) => order.status === "PENDING")
     if (hasPendingOrders) {
       playAlertSound()
       setNewOrderAlert(true)
     } else {
+      stopAlertSound()
       setNewOrderAlert(false)
-      if (alertIntervalRef.current) {
-        clearInterval(alertIntervalRef.current)
-        alertIntervalRef.current = null
-      }
     }
-  }, [orders, playAlertSound])
+  }, [orders, playAlertSound, stopAlertSound])
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -63,13 +67,17 @@ const AdminTerminal: React.FC = () => {
 
       if (newOrders.length > 0) {
         setOrders((prevOrders) => {
-          const updatedOrders = [...prevOrders, ...newOrders]
+          const updatedOrders = [...prevOrders]
+          newOrders.forEach((newOrder) => {
+            const index = updatedOrders.findIndex((order) => order.id === newOrder.id)
+            if (index !== -1) {
+              updatedOrders[index] = newOrder
+            } else {
+              updatedOrders.push(newOrder)
+            }
+          })
           return updatedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         })
-
-        if (!alertIntervalRef.current) {
-          alertIntervalRef.current = setInterval(checkPendingOrders, 5000) // Verificar cada 5 segundos
-        }
       }
 
       lastFetchTimeRef.current = currentTime
@@ -79,13 +87,12 @@ const AdminTerminal: React.FC = () => {
       setError("Error al cargar los pedidos. Por favor, intente de nuevo.")
       setIsLoading(false)
     }
-  }, [checkPendingOrders])
+  }, [])
 
   useEffect(() => {
     audioRef.current = new Audio("/alert-sound.mp3")
     audioRef.current.loop = true
 
-    // Inicializar Web Worker
     workerRef.current = new Worker(new URL("../workers/keepAlive.worker.ts", import.meta.url))
 
     const keepAlive = () => {
@@ -126,12 +133,25 @@ const AdminTerminal: React.FC = () => {
       if (workerRef.current) {
         workerRef.current.terminate()
       }
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
+      stopAlertSound()
+    }
+  }, [fetchOrders, stopAlertSound])
+
+  useEffect(() => {
+    checkPendingOrders()
+
+    if (alertIntervalRef.current) {
+      clearInterval(alertIntervalRef.current)
+    }
+
+    alertIntervalRef.current = setInterval(checkPendingOrders, 5000) // Verificar cada 5 segundos
+
+    return () => {
+      if (alertIntervalRef.current) {
+        clearInterval(alertIntervalRef.current)
       }
     }
-  }, [fetchOrders])
+  }, [checkPendingOrders]) // Removed unnecessary dependency: orders
 
   const toggleOrderExpansion = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId)
@@ -150,7 +170,9 @@ const AdminTerminal: React.FC = () => {
         throw new Error("Failed to update order status")
       }
       const updatedOrder = await response.json()
-      setOrders(orders.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)))
+      setOrders((prevOrders) =>
+        prevOrders.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)),
+      )
     } catch (error) {
       console.error("Error updating order status:", error)
     }
