@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, ChevronUp, Volume2, VolumeX, ImageIcon } from "lucide-react"
+import { ChevronDown, ChevronUp, Volume2, VolumeX, X } from "lucide-react"
 
 interface Order {
   id: string
@@ -38,7 +38,7 @@ const AdminTerminal: React.FC = () => {
   }, [soundEnabled])
 
   const checkPendingOrders = useCallback(() => {
-    const hasPendingOrders = orders.some((order) => order.status === "PENDING" || order.status === "CONFIRMED")
+    const hasPendingOrders = orders.some((order) => order.status === "PENDING")
     if (hasPendingOrders) {
       playAlertSound()
       setNewOrderAlert(true)
@@ -63,20 +63,12 @@ const AdminTerminal: React.FC = () => {
 
       if (newOrders.length > 0) {
         setOrders((prevOrders) => {
-          const updatedOrders = [...prevOrders]
-          newOrders.forEach((newOrder: Order) => {
-            const index = updatedOrders.findIndex((order) => order.id === newOrder.id)
-            if (index !== -1) {
-              updatedOrders[index] = newOrder
-            } else {
-              updatedOrders.unshift(newOrder)
-            }
-          })
-          return updatedOrders
+          const updatedOrders = [...prevOrders, ...newOrders]
+          return updatedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         })
 
         if (!alertIntervalRef.current) {
-          alertIntervalRef.current = setInterval(checkPendingOrders, 30000) // Verificar cada 30 segundos
+          alertIntervalRef.current = setInterval(checkPendingOrders, 5000) // Verificar cada 5 segundos
         }
       }
 
@@ -91,6 +83,7 @@ const AdminTerminal: React.FC = () => {
 
   useEffect(() => {
     audioRef.current = new Audio("/alert-sound.mp3")
+    audioRef.current.loop = true
 
     // Inicializar Web Worker
     workerRef.current = new Worker(new URL("../workers/keepAlive.worker.ts", import.meta.url))
@@ -132,6 +125,10 @@ const AdminTerminal: React.FC = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
       if (workerRef.current) {
         workerRef.current.terminate()
+      }
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
       }
     }
   }, [fetchOrders])
@@ -239,10 +236,7 @@ const AdminTerminal: React.FC = () => {
                             : "border-green-500"
                     }`}
                   >
-                    <div
-                      className="p-4 cursor-pointer hover:bg-amber-50 transition-colors"
-                      onClick={() => toggleOrderExpansion(order.id)}
-                    >
+                    <div className="p-4">
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-semibold text-gray-800">{order.customerName}</h3>
@@ -273,23 +267,48 @@ const AdminTerminal: React.FC = () => {
                                 ? "Cancelado"
                                 : "Entregado"}
                         </span>
-                        {expandedOrder === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                        <div className="flex items-center space-x-2">
-                          <img
-                            src={order.paymentProof.cloudinaryUrl || "/placeholder.svg"}
-                            alt="Vista previa del comprobante"
-                            className="w-10 h-10 object-cover rounded-md cursor-pointer"
-                            onClick={() => openImageModal(order.paymentProof.cloudinaryUrl)}
-                          />
+                        <img
+                          src={order.paymentProof.cloudinaryUrl || "/placeholder.svg"}
+                          alt="Comprobante de pago"
+                          className="w-16 h-16 object-cover rounded-md cursor-pointer"
+                          onClick={() => openImageModal(order.paymentProof.cloudinaryUrl)}
+                        />
+                      </div>
+                      {order.status === "PENDING" && (
+                        <div className="mt-4 flex justify-end space-x-2">
                           <button
-                            onClick={() => openImageModal(order.paymentProof.cloudinaryUrl)}
-                            className="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center"
+                            onClick={() => updateOrderStatus(order.id, "CONFIRMED")}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                           >
-                            <ImageIcon size={16} className="mr-1" />
-                            Ver comprobante
+                            Confirmar
+                          </button>
+                          <button
+                            onClick={() => updateOrderStatus(order.id, "CANCELLED")}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                          >
+                            Cancelar
                           </button>
                         </div>
-                      </div>
+                      )}
+                      {order.status === "CONFIRMED" && (
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() => updateOrderStatus(order.id, "DELIVERED")}
+                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                          >
+                            Entregado
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className="p-4 cursor-pointer hover:bg-amber-50 transition-colors flex justify-between items-center"
+                      onClick={() => toggleOrderExpansion(order.id)}
+                    >
+                      <span className="text-sm font-medium text-gray-600">
+                        {expandedOrder === order.id ? "Ocultar detalles" : "Ver detalles"}
+                      </span>
+                      {expandedOrder === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </div>
                     <AnimatePresence>
                       {expandedOrder === order.id && (
@@ -310,32 +329,6 @@ const AdminTerminal: React.FC = () => {
                                 </li>
                               ))}
                             </ul>
-                            <div className="mt-4 flex justify-end space-x-2">
-                              {order.status === "PENDING" && (
-                                <>
-                                  <button
-                                    onClick={() => updateOrderStatus(order.id, "CONFIRMED")}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                                  >
-                                    Confirmar
-                                  </button>
-                                  <button
-                                    onClick={() => updateOrderStatus(order.id, "CANCELLED")}
-                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                                  >
-                                    Cancelar
-                                  </button>
-                                </>
-                              )}
-                              {order.status === "CONFIRMED" && (
-                                <button
-                                  onClick={() => updateOrderStatus(order.id, "DELIVERED")}
-                                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                                >
-                                  Entregado
-                                </button>
-                              )}
-                            </div>
                           </div>
                         </motion.div>
                       )}
@@ -353,14 +346,11 @@ const AdminTerminal: React.FC = () => {
       {/* Modal para mostrar la imagen */}
       {selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-auto">
-            <img src={selectedImage || "/placeholder.svg"} alt="Comprobante de pago" className="max-w-full h-auto" />
-            <button
-              onClick={closeImageModal}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-            >
-              Cerrar
+          <div className="relative bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-auto">
+            <button onClick={closeImageModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+              <X size={24} />
             </button>
+            <img src={selectedImage || "/placeholder.svg"} alt="Comprobante de pago" className="max-w-full h-auto" />
           </div>
         </div>
       )}
