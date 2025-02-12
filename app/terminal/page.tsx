@@ -186,6 +186,14 @@ const AdminTerminal: React.FC = () => {
     setSelectedImage(null)
   }
 
+  const sendWhatsAppMessage = (phoneNumber: string, order: Order) => {
+    const items = order.items.map((item) => `${item.quantity}x ${item.itemName}`).join("\n")
+    const message = `¡Hola! Tu pedido ha sido confirmado:\n\n${items}\n\nTotal: S/ ${order.totalAmount.toFixed(2)}\n\nPor favor, recógelo en 30 minutos. ¡Gracias!`
+    const encodedMessage = encodeURIComponent(message)
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`
+    window.open(whatsappUrl, "_blank")
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-amber-50">
@@ -310,13 +318,25 @@ const AdminTerminal: React.FC = () => {
                           >
                             Cancelar
                           </button>
+                          <button
+                            onClick={() => sendWhatsAppMessage(order.customerPhone, order)}
+                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                          >
+                            Enviar WhatsApp
+                          </button>
                         </div>
                       )}
                       {order.status === "CONFIRMED" && (
-                        <div className="mt-4 flex justify-end">
+                        <div className="mt-4 flex justify-end space-x-2">
+                          <button
+                            onClick={() => sendWhatsAppMessage(order.customerPhone, order)}
+                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                          >
+                            Enviar WhatsApp
+                          </button>
                           <button
                             onClick={() => updateOrderStatus(order.id, "DELIVERED")}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                           >
                             Entregado
                           </button>
@@ -368,11 +388,15 @@ const AdminTerminal: React.FC = () => {
       {/* Modal para mostrar la imagen */}
       {selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-auto">
-            <button onClick={closeImageModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+          <div className="relative bg-white p-4 rounded-lg max-w-2xl max-h-[90vh] flex items-center justify-center overflow-hidden">
+            <button onClick={closeImageModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10">
               <X size={24} />
             </button>
-            <img src={selectedImage || "/placeholder.svg"} alt="Comprobante de pago" className="max-w-full h-auto" />
+            <img
+              src={selectedImage || "/placeholder.svg"}
+              alt="Comprobante de pago"
+              className="max-w-full max-h-[80vh] object-contain"
+            />
           </div>
         </div>
       )}
