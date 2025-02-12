@@ -188,8 +188,8 @@ const AdminTerminal: React.FC = () => {
 
   const sendWhatsAppMessage = (phoneNumber: string, order: Order) => {
     const formattedPhoneNumber = phoneNumber.startsWith("+51") ? phoneNumber : `+51${phoneNumber}`
-    const items = order.items.map((item) => `${item.quantity}x ${item.itemName}`).join("\n")
-    const message = `¡Hola! Tu pedido ha sido confirmado:\n\n${items}\n\nTotal: S/ ${order.totalAmount.toFixed(2)}\n\nPor favor, recógelo en 30 minutos. ¡Gracias!`
+    const items = order.items.map((item) => `• ${item.quantity}x ${item.itemName}`).join("\n")
+    const message = `¡Hola! 👋 Gracias por tu pedido en Sol de Oro ☀️🥘\n\nTu pedido ha sido confirmado:\n\n${items}\n\n💰 Total: S/ ${order.totalAmount.toFixed(2)}\n\n🕒 Por favor, recógelo en 30 minutos.\n\n¡Gracias por tu preferencia! 😊`
     const encodedMessage = encodeURIComponent(message)
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhoneNumber}&text=${encodedMessage}`
     window.open(whatsappUrl, "_blank")
@@ -321,12 +321,6 @@ const AdminTerminal: React.FC = () => {
                           >
                             Cancelar
                           </button>
-                          <button
-                            onClick={() => sendWhatsAppMessage(order.customerPhone, order)}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                          >
-                            Enviar WhatsApp
-                          </button>
                         </div>
                       )}
                       {order.status === "CONFIRMED" && (
@@ -335,7 +329,7 @@ const AdminTerminal: React.FC = () => {
                             onClick={() => sendWhatsAppMessage(order.customerPhone, order)}
                             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                           >
-                            Enviar WhatsApp
+                            Confirmar por WhatsApp
                           </button>
                           <button
                             onClick={() => updateOrderStatus(order.id, "DELIVERED")}
