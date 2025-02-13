@@ -1,4 +1,5 @@
-import { Pool } from "pg"
+import pkg from 'pg';
+const { Pool } = pkg;
 import * as dotenv from "dotenv"
 
 dotenv.config()
@@ -41,4 +42,3 @@ export async function testConnection() {
 }
 
 export default pool
-

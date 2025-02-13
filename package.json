@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:db": "node --require dotenv/config --loader ts-node/esm scripts/test-db.ts",
+    "test:db": "NODE_OPTIONS='--loader ts-node/esm' node lib/test-db.ts",
     "test:cloudinary": "node app/cloudinary-test.js",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
@@ -33,7 +33,7 @@
     "sharp": "^0.33.2"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.17.17",
     "@types/pg": "^8.11.2",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
@@ -42,6 +42,7 @@
     "postcss": "^8.4.35",
     "prisma": "^5.10.2",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "engines": {
