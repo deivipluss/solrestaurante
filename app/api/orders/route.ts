@@ -1,8 +1,8 @@
-const { NextResponse } = require("next/server");
-const prisma = require("@/lib/prisma");
-const { uploadToCloudinary } = require("@/lib/cloudinary");
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
-const POST = async (request) => {
+export const POST = async (request: Request) => {
   try {
     // Verificar el tipo de contenido
     if (!request.headers.get("content-type")?.includes("multipart/form-data")) {
@@ -13,8 +13,8 @@ const POST = async (request) => {
     }
 
     const formData = await request.formData();
-    const receipt = formData.get("receipt");
-    const itemsString = formData.get("items");
+    const receipt = formData.get("receipt") as File;
+    const itemsString = formData.get("items") as string;
 
     if (!receipt) {
       return NextResponse.json(
@@ -67,9 +67,9 @@ const POST = async (request) => {
       );
     }
 
-    const customerName = formData.get("customerName");
-    const customerPhone = formData.get("customerPhone");
-    const totalAmountString = formData.get("totalAmount");
+    const customerName = formData.get("customerName") as string;
+    const customerPhone = formData.get("customerPhone") as string;
+    const totalAmountString = formData.get("totalAmount") as string;
 
     if (!customerName || !customerPhone || !totalAmountString) {
       return NextResponse.json(
@@ -99,7 +99,7 @@ const POST = async (request) => {
           },
         },
         items: {
-          create: items.map((item) => ({
+          create: items.map((item: any) => ({
             itemName: item.name,
             quantity: item.quantity,
             price: Number.parseFloat(item.price.replace("S/", "")),
@@ -132,7 +132,7 @@ const POST = async (request) => {
   }
 };
 
-const OPTIONS = async (request) => {
+export const OPTIONS = async (request: Request) => {
   return NextResponse.json(
     {},
     {
@@ -144,5 +144,3 @@ const OPTIONS = async (request) => {
     }
   );
 };
-
-module.exports = { POST, OPTIONS };

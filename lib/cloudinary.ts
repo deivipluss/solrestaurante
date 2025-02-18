@@ -1,12 +1,5 @@
-const { v2: cloudinary } = require('cloudinary');
-
-interface CloudinaryResult {
-  secure_url: string;
-}
-
-interface CloudinaryError {
-  message: string;
-}
+import { v2 as cloudinary } from 'cloudinary';
+import type { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary/types';
 
 // Verificar variables de entorno
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
@@ -20,7 +13,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadFileToCloudinary = async (file: Buffer, fileType: string): Promise<string> => {
+export const uploadToCloudinary = async (file: Buffer, fileType: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -32,7 +25,7 @@ const uploadFileToCloudinary = async (file: Buffer, fileType: string): Promise<s
           { quality: "auto:good" }
         ],
       },
-      (error: CloudinaryError | null, result: CloudinaryResult | undefined) => {
+      (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (error) {
           console.error("Error de Cloudinary:", error);
           reject(new Error(`Error al subir a Cloudinary: ${error.message}`));
@@ -41,11 +34,9 @@ const uploadFileToCloudinary = async (file: Buffer, fileType: string): Promise<s
         } else {
           resolve(result.secure_url);
         }
-      },
+      }
     );
 
     uploadStream.end(file);
   });
 };
-
-module.exports = { uploadFileToCloudinary };
