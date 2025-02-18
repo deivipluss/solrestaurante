@@ -6,22 +6,47 @@ import { useCart } from "@/app/context/CartContext"
 import { Trash } from 'lucide-react'
 import PaymentModal from "./PaymentModal"
 
+// Definimos la interfaz para los items del carrito
+interface CartItem {
+  name: string;
+  quantity: number;
+  price: string;
+}
+
 const Cart = () => {
   const { cart, removeFromCart, getTotal, clearCart, getTotalQuantity, isOpen, setIsOpen } = useCart()
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
 
   const totalQuantity = getTotalQuantity()
 
+  // Preparar datos para la base de datos
+  const prepareCartForDatabase = () => {
+    return cart.map(item => ({
+      itemName: item.name,
+      quantity: item.quantity,
+      price: Number.parseFloat(item.price.replace("S/", "")),
+    }));
+  };
+
   const handlePayNow = () => {
-    setIsPaymentModalOpen(true)
-    setIsOpen(false)
-  }
+    if (cart.length === 0) {
+      alert('El carrito está vacío');
+      return;
+    }
+    if (getTotal() <= 0) {
+      alert('El total debe ser mayor a 0');
+      return;
+    }
+    setIsPaymentModalOpen(true);
+    setIsOpen(false);
+  };
 
   const handleBackToCart = () => {
     setIsPaymentModalOpen(false)
     setIsOpen(true)
   }
 
+  // Click fuera del modal
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
@@ -170,6 +195,8 @@ const Cart = () => {
           setIsOpen(false)
         }}
         onBackToCart={handleBackToCart}
+        cartItems={prepareCartForDatabase()}
+        total={getTotal()}
       />
     </>
   )

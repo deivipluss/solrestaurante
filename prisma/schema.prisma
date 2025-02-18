@@ -7,43 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
-}
-
 model Order {
-  id             String         @id @default(uuid())
-  customerName   String
-  customerPhone  String
-  totalAmount    Float
-  status         OrderStatus    @default(PENDING)
-  paymentProof   PaymentProof?
-  items          OrderItem[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  DELIVERED
+  customerName  String         @db.VarChar(100)
+  customerPhone String         @db.VarChar(20)
+  createdAt     DateTime       @default(now())
+  numeric       Decimal
+  id            Int            @id @default(autoincrement())
+  items         OrderItem[]
+  paymentProof  PaymentProof[]
 }
 
 model PaymentProof {
-  id            String  @id @default(uuid())
   cloudinaryUrl String
-  order         Order   @relation(fields: [orderId], references: [id])
-  orderId       String  @unique
+  createdAt     DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  orderId       Int
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  itemName  String
-  quantity  Int
-  price     Float
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   String
+  itemName String  @db.VarChar(100)
+  quantity Int     @default(1)
+  numeric  Decimal
+  id       Int     @id @default(autoincrement())
+  orderId  Int
+  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }

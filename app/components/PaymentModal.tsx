@@ -6,18 +6,33 @@ import Image from "next/image"
 import { useCart } from "@/app/context/CartContext"
 import { X } from "lucide-react"
 
-interface PaymentModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onBackToCart: () => void
+// Interfaces for type safety
+interface CartItem {
+  itemName: string;
+  quantity: number;
+  price: number;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCart }) => {
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onBackToCart: () => void;
+  cartItems: CartItem[];
+  total: number;
+}
+
+const PaymentModal: React.FC<PaymentModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onBackToCart, 
+  cartItems, 
+  total 
+}) => {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [receipt, setReceipt] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { cart, getTotal, createOrder } = useCart()
+  const { clearCart } = useCart()
 
   const handleConfirm = async () => {
     if (!name || !phone || !receipt) {
@@ -25,34 +40,61 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
       return
     }
 
-    if (receipt.type.startsWith("image/")) {
-      // Verificar tamaño antes de enviar
-      if (receipt.size > 4.5 * 1024 * 1024) {
-        alert("El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB")
-        return
-      }
-    } else {
+    // Validaciones
+    if (!name.trim()) {
+      alert("Por favor ingrese un nombre válido")
+      return
+    }
+
+    if (!/^\d{9}$/.test(phone)) {
+      alert("Por favor ingrese un número de teléfono válido (9 dígitos)")
+      return
+    }
+
+    if (!receipt.type.startsWith("image/")) {
       alert("Por favor, adjunte una imagen válida como comprobante.")
+      return
+    }
+
+    if (receipt.size > 4.5 * 1024 * 1024) {
+      alert("El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB")
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      await createOrder(name, phone, receipt)
+      const formData = new FormData()
+      formData.append('customerName', name)
+      formData.append('customerPhone', phone)
+      formData.append('items', JSON.stringify(cartItems))
+      formData.append('totalAmount', total.toString())
+      formData.append('receipt', receipt)
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Error al procesar el pedido')
+      }
+
+      const data = await response.json()
+      
+      clearCart()
       onClose()
       alert("¡Pedido realizado con éxito!")
     } catch (error) {
       console.error("Error detallado:", error)
       alert(
-        `Hubo un error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`,
+        `Hubo un error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`
       )
     } finally {
       setIsSubmitting(false)
     }
   }
-
-  const total = getTotal()
 
   return (
     <AnimatePresence>
@@ -83,17 +125,19 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Resumen del pedido:</h3>
                 <div className="space-y-2">
-                  {cart.map((item, index) => (
+                  {cartItems.map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <span className="font-medium">
-                        {item.name} x{item.quantity}
+                        {item.itemName} x{item.quantity}
                       </span>
-                      <span>S/{(Number.parseFloat(item.price.replace("S/", "")) * item.quantity).toFixed(2)}</span>
+                      <span>S/{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 pt-2 border-t border-gray-200">
-                  <p className="text-lg font-semibold text-amber-700">Total a pagar: S/{total.toFixed(2)}</p>
+                  <p className="text-lg font-semibold text-amber-700">
+                    Total a pagar: S/{total.toFixed(2)}
+                  </p>
                 </div>
               </div>
 
@@ -105,7 +149,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
                   height={200}
                   className="mx-auto mb-2"
                 />
-                <p className="text-center text-sm text-gray-600">Escanea el código QR para realizar el pago</p>
+                <p className="text-center text-sm text-gray-600">
+                  Escanea el código QR para realizar el pago
+                </p>
               </div>
 
               <div className="mb-6">
@@ -129,6 +175,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
                   placeholder="Tu número de WhatsApp"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  pattern="[0-9]{9}"
+                  maxLength={9}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
                 />
                 <div>
@@ -176,4 +224,3 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onBackToCa
 }
 
 export default PaymentModal
-
