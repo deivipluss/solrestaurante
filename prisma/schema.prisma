@@ -8,28 +8,33 @@ datasource db {
 }
 
 model Order {
+  id            Int            @id @default(autoincrement())
   customerName  String         @db.VarChar(100)
   customerPhone String         @db.VarChar(20)
+  totalAmount   Decimal        @db.Decimal(10, 2)
+  status        String         @default("PENDING")
   createdAt     DateTime       @default(now())
-  numeric       Decimal
-  id            Int            @id @default(autoincrement())
+  updatedAt     DateTime       @updatedAt
   items         OrderItem[]
   paymentProof  PaymentProof[]
 }
 
 model PaymentProof {
+  id            Int      @id @default(autoincrement())
   cloudinaryUrl String
   createdAt     DateTime @default(now())
-  id            Int      @id @default(autoincrement())
+  updatedAt     DateTime @updatedAt
   orderId       Int
   order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model OrderItem {
-  itemName String  @db.VarChar(100)
-  quantity Int     @default(1)
-  numeric  Decimal
-  id       Int     @id @default(autoincrement())
-  orderId  Int
-  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  itemName  String   @db.VarChar(100)
+  quantity  Int      @default(1)
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
