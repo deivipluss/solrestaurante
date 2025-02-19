@@ -1,11 +1,12 @@
-// @ts-check
-
-/**
- * @type {import('next').NextConfig}
- */
+js
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
       {
         protocol: "https",
         hostname: "via.placeholder.com",
@@ -14,12 +15,8 @@ const nextConfig = {
   },
   reactStrictMode: true,
   swcMinify: true,
-  compiler: {
-    styledComponents: true,
-  },
-  i18n: {
-    locales: ["es-PE"],
-    defaultLocale: "es-PE",
+  experimental: {
+    serverActions: true,
   },
   async headers() {
     return [
@@ -40,4 +37,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
