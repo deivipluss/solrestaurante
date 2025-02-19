@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "test:db": "ts-node lib/test-db.ts",
     "test:cloudinary": "node app/cloudinary-test.js",
     "migrate": "prisma migrate dev",
