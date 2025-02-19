@@ -4,25 +4,38 @@ import type React from "react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, ChevronUp, Volume2, VolumeX, X } from "lucide-react"
+import { Decimal } from "@prisma/client/runtime/library"
+
+interface OrderItem {
+  id: number
+  itemName: string
+  quantity: number
+  price: Decimal
+  orderId: number
+}
+
+interface PaymentProof {
+  id: number
+  cloudinaryUrl: string
+  orderId: number
+}
 
 interface Order {
-  id: string
+  id: number
   customerName: string
   customerPhone: string
-  totalAmount: number
-  items: { itemName: string; quantity: number; price: number }[]
-  createdAt: string
+  totalAmount: Decimal
+  items: OrderItem[]
+  createdAt: Date
   status: "PENDING" | "CONFIRMED" | "CANCELLED" | "DELIVERED"
-  paymentProof: {
-    cloudinaryUrl: string
-  }
+  paymentProof: PaymentProof
 }
 
 const AdminTerminal: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [newOrderAlert, setNewOrderAlert] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -76,7 +89,9 @@ const AdminTerminal: React.FC = () => {
               updatedOrders.push(newOrder)
             }
           })
-          return updatedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          return updatedOrders.sort((a, b) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
         })
       }
 
@@ -103,7 +118,7 @@ const AdminTerminal: React.FC = () => {
     }
     keepAlive()
 
-    const updateInterval = 10000 // 10 segundos
+    const updateInterval = 10000
     let intervalId: NodeJS.Timeout
 
     const startInterval = (interval: number) => {
@@ -113,7 +128,7 @@ const AdminTerminal: React.FC = () => {
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        startInterval(60000) // Actualizar cada minuto cuando no está visible
+        startInterval(60000)
       } else {
         startInterval(updateInterval)
       }
@@ -121,8 +136,7 @@ const AdminTerminal: React.FC = () => {
 
     document.addEventListener("visibilitychange", handleVisibilityChange)
     startInterval(updateInterval)
-
-    fetchOrders() // Fetch initial orders
+    fetchOrders()
 
     return () => {
       clearInterval(intervalId)
@@ -139,43 +153,67 @@ const AdminTerminal: React.FC = () => {
 
   useEffect(() => {
     checkPendingOrders()
-
     if (alertIntervalRef.current) {
       clearInterval(alertIntervalRef.current)
     }
-
-    alertIntervalRef.current = setInterval(checkPendingOrders, 5000) // Verificar cada 5 segundos
-
+    alertIntervalRef.current = setInterval(checkPendingOrders, 5000)
     return () => {
       if (alertIntervalRef.current) {
         clearInterval(alertIntervalRef.current)
       }
     }
-  }, [checkPendingOrders]) // Removed unnecessary dependency: orders
+  }, [checkPendingOrders])
 
-  const toggleOrderExpansion = (orderId: string) => {
+  const toggleOrderExpansion = (orderId: number) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId)
   }
 
-  const updateOrderStatus = async (orderId: string, newStatus: Order["status"]) => {
+  const updateOrderStatus = async (orderId: number, newStatus: Order["status"]) => {
     try {
-      const response = await fetch(`/api/orders`, {
+      const response = await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ orderId, status: newStatus }),
+        body: JSON.stringify({ status: newStatus }),
       })
+      
       if (!response.ok) {
         throw new Error("Failed to update order status")
       }
+      
       const updatedOrder = await response.json()
       setOrders((prevOrders) =>
-        prevOrders.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)),
+        prevOrders.map((order) => 
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
       )
     } catch (error) {
       console.error("Error updating order status:", error)
     }
+  }
+
+  const formatPrice = (price: Decimal | number): string => {
+    if (price instanceof Decimal) {
+      return `S/${price.toFixed(2)}`
+    }
+    return `S/${Number(price).toFixed(2)}`
+  }
+
+  const sendWhatsAppMessage = (phoneNumber: string, order: Order) => {
+    const formattedPhoneNumber = phoneNumber.startsWith("+51") ? phoneNumber : `+51${phoneNumber}`
+    const items = order.items
+      .map((item) => `• ${item.quantity}x ${item.itemName}`)
+      .join("\n")
+    const message = `¡Hola! 👋 Gracias por tu pedido en Sol de Oro ☀️🥘\n\n` +
+      `Tu pedido ha sido confirmado:\n\n${items}\n\n` +
+      `💰 Total: ${formatPrice(order.totalAmount)}\n\n` +
+      `🕒 Por favor, recógelo en 30 minutos.\n\n` +
+      `¡Gracias por tu preferencia! 😊`
+    
+    const encodedMessage = encodeURIComponent(message)
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhoneNumber}&text=${encodedMessage}`
+    window.open(whatsappUrl, "_blank")
   }
 
   const openImageModal = (imageUrl: string) => {
@@ -184,15 +222,6 @@ const AdminTerminal: React.FC = () => {
 
   const closeImageModal = () => {
     setSelectedImage(null)
-  }
-
-  const sendWhatsAppMessage = (phoneNumber: string, order: Order) => {
-    const formattedPhoneNumber = phoneNumber.startsWith("+51") ? phoneNumber : `+51${phoneNumber}`
-    const items = order.items.map((item) => `• ${item.quantity}x ${item.itemName}`).join("\n")
-    const message = `¡Hola! 👋 Gracias por tu pedido en Sol de Oro ☀️🥘\n\nTu pedido ha sido confirmado:\n\n${items}\n\n💰 Total: S/ ${order.totalAmount.toFixed(2)}\n\n🕒 Por favor, recógelo en 30 minutos.\n\n¡Gracias por tu preferencia! 😊`
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhoneNumber}&text=${encodedMessage}`
-    window.open(whatsappUrl, "_blank")
   }
 
   if (isLoading) {
@@ -276,7 +305,7 @@ const AdminTerminal: React.FC = () => {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-amber-600">S/ {order.totalAmount.toFixed(2)}</p>
+                          <p className="text-lg font-bold text-amber-600">{formatPrice(order.totalAmount)}</p>
                           <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleString()}</p>
                         </div>
                       </div>
@@ -301,7 +330,7 @@ const AdminTerminal: React.FC = () => {
                                 : "Entregado"}
                         </span>
                         <img
-                          src={order.paymentProof.cloudinaryUrl || "/placeholder.svg"}
+                          src={order.paymentProof.cloudinaryUrl}
                           alt="Comprobante de pago"
                           className="w-16 h-16 object-cover rounded-md cursor-pointer"
                           onClick={() => openImageModal(order.paymentProof.cloudinaryUrl)}
@@ -359,12 +388,14 @@ const AdminTerminal: React.FC = () => {
                         >
                           <div className="p-4 bg-amber-50">
                             <ul className="divide-y divide-amber-200">
-                              {order.items.map((item, index) => (
-                                <li key={index} className="py-2 flex justify-between">
+                              {order.items.map((item) => (
+                                <li key={item.id} className="py-2 flex justify-between">
                                   <span className="text-gray-700">
                                     {item.quantity}x {item.itemName}
                                   </span>
-                                  <span className="text-gray-600">S/ {(item.price * item.quantity).toFixed(2)}</span>
+                                  <span className="text-gray-600">
+                                    {formatPrice(new Decimal(item.price).mul(item.quantity))}
+                                  </span>
                                 </li>
                               ))}
                             </ul>
@@ -382,15 +413,17 @@ const AdminTerminal: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal para mostrar la imagen */}
       {selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative bg-white p-4 rounded-lg max-w-2xl max-h-[90vh] flex items-center justify-center overflow-hidden">
-            <button onClick={closeImageModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10">
+            <button 
+              onClick={closeImageModal} 
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10"
+            >
               <X size={24} />
             </button>
             <img
-              src={selectedImage || "/placeholder.svg"}
+              src={selectedImage}
               alt="Comprobante de pago"
               className="max-w-full max-h-[80vh] object-contain"
             />
@@ -402,4 +435,3 @@ const AdminTerminal: React.FC = () => {
 }
 
 export default AdminTerminal
-

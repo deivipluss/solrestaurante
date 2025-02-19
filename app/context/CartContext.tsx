@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
-import { Decimal } from "@prisma/client/runtime/library"
+import { Decimal } from "../utils/decimal"
 
 interface CartItem {
   name: string
@@ -86,7 +86,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const prepareItemsForOrder = useCallback((items: CartItem[]): PreparedCartItem[] => {
     return items.map(item => ({
       itemName: item.name,
-      price: new Decimal(item.price.toString()),
+      price: Decimal.from(item.price),
       quantity: item.quantity
     }))
   }, [])
@@ -107,7 +107,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
 
         const preparedItems = prepareItemsForOrder(cart)
-        const totalAmount = new Decimal(getTotal())
+        const totalAmount = Decimal.from(getTotal())
 
         const formData = new FormData()
         formData.append("customerName", customerName.trim())
