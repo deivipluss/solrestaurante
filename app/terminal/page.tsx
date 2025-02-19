@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, ChevronUp, Volume2, VolumeX, X } from "lucide-react"
-import { Decimal } from "@prisma/client/runtime/library"
+import { Decimal } from "@/app/utils/decimal"
 
 interface OrderItem {
   id: number
