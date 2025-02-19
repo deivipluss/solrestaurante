@@ -6,11 +6,16 @@ import { useCart } from "@/app/context/CartContext"
 import { Trash } from 'lucide-react'
 import PaymentModal from "./PaymentModal"
 
-// Definimos la interfaz para los items del carrito
 interface CartItem {
-  name: string;
-  quantity: number;
-  price: string;
+  name: string
+  quantity: number
+  price: number
+}
+
+interface PreparedCartItem {
+  itemName: string
+  quantity: number
+  price: number
 }
 
 const Cart = () => {
@@ -19,34 +24,44 @@ const Cart = () => {
 
   const totalQuantity = getTotalQuantity()
 
-  // Preparar datos para la base de datos
-  const prepareCartForDatabase = () => {
+  const prepareCartForDatabase = (): PreparedCartItem[] => {
     return cart.map(item => ({
       itemName: item.name,
       quantity: item.quantity,
-      price: Number.parseFloat(item.price.replace("S/", "")),
-    }));
-  };
+      price: item.price
+    }))
+  }
 
   const handlePayNow = () => {
     if (cart.length === 0) {
-      alert('El carrito está vacío');
-      return;
+      alert('El carrito está vacío')
+      return
     }
-    if (getTotal() <= 0) {
-      alert('El total debe ser mayor a 0');
-      return;
+    
+    const total = getTotal()
+    if (total <= 0) {
+      alert('El total debe ser mayor a 0')
+      return
     }
-    setIsPaymentModalOpen(true);
-    setIsOpen(false);
-  };
+
+    const invalidItems = cart.some(item => 
+      isNaN(item.price) || item.price <= 0
+    )
+
+    if (invalidItems) {
+      alert('Hay items con precios inválidos')
+      return
+    }
+
+    setIsPaymentModalOpen(true)
+    setIsOpen(false)
+  }
 
   const handleBackToCart = () => {
     setIsPaymentModalOpen(false)
     setIsOpen(true)
   }
 
-  // Click fuera del modal
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
@@ -59,9 +74,12 @@ const Cart = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isOpen, setIsOpen])
 
+  const formatPrice = (price: number): string => {
+    return `S/${price.toFixed(2)}`
+  }
+
   return (
     <>
-      {/* Botón flotante del pedido */}
       <motion.button
         key={totalQuantity}
         initial={{ scale: 0.95, y: 10 }}
@@ -103,7 +121,6 @@ const Cart = () => {
         </motion.span>
       </motion.button>
 
-      {/* Modal del pedido */}
       <AnimatePresence>
         {isOpen && !isPaymentModalOpen && (
           <motion.div
@@ -138,11 +155,12 @@ const Cart = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-amber-700 font-semibold">
-                            S/{(Number.parseFloat(item.price.replace("S/", "")) * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </span>
                           <button
                             onClick={() => removeFromCart(item.name)}
                             className="text-red-500 hover:text-red-700 transition-colors"
+                            aria-label={`Eliminar ${item.name} del carrito`}
                           >
                             <Trash size={18} />
                           </button>
@@ -153,7 +171,9 @@ const Cart = () => {
 
                   <div className="flex justify-between items-center mb-6 px-2">
                     <span className="font-bold text-lg">Total a pagar:</span>
-                    <span className="text-2xl font-bold text-amber-700">S/{getTotal().toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-amber-700">
+                      {formatPrice(getTotal())}
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-3 mt-6">

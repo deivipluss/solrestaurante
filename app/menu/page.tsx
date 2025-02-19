@@ -1,41 +1,70 @@
 "use client"
-
-import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X, Star, Search, MapPin, Clock, Phone, Instagram, Facebook, Quote } from "lucide-react"
+import { 
+  Menu, 
+  X, 
+  Search, 
+  MapPin, 
+  Clock, 
+  Phone, 
+  Instagram, 
+  Facebook, 
+  Quote 
+} from "lucide-react"
 import { useCart } from "@/app/context/CartContext"
 import Cart from "@/app/components/Cart"
 import MenuCard from "@/app/components/MenuCard"
 import AdminTerminal from "@/app/terminal/page"
-import { menuSections } from "@/app/menu/data"
+import type { MenuSection, MenuItem } from './types'
 
-const FeaturedCategory: React.FC<{ title: string; image: string; onClick: () => void }> = ({
+const FeaturedCategory: React.FC<{ 
+  title: string
+  image: string
+  onClick: () => void
+  isActive?: boolean 
+}> = ({
   title,
   image,
   onClick,
+  isActive
 }) => (
   <motion.div
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="relative h-48 md:h-56 rounded-xl overflow-hidden shadow-lg cursor-pointer"
+    className={`relative h-48 md:h-56 rounded-xl overflow-hidden shadow-lg cursor-pointer 
+      ${isActive ? 'ring-2 ring-amber-500' : ''}`}
     onClick={onClick}
   >
-    <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
+    <Image 
+      src={image || "/placeholder.svg"} 
+      alt={title} 
+      fill 
+      className="object-cover"
+      priority={true}
+    />
     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
       <h3 className="text-white text-2xl font-bold">{title}</h3>
     </div>
   </motion.div>
 )
 
-const Testimonial: React.FC<{ text: string; author: string }> = ({ text, author }) => (
+const Testimonial: React.FC<{ 
+  text: string
+  author: string
+  delay?: number
+}> = ({ 
+  text, 
+  author,
+  delay = 0 
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
-    className="bg-white rounded-xl shadow-md p-6 border border-gray-100"
+    transition={{ duration: 0.5, delay }}
+    className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow"
   >
     <Quote className="text-amber-500 mb-4" size={32} />
     <p className="text-gray-700 mb-4 italic">{text}</p>
@@ -46,52 +75,59 @@ const Testimonial: React.FC<{ text: string; author: string }> = ({ text, author 
 const MenuPage: React.FC = () => {
   const { setIsOpen: setIsCartOpen } = useCart()
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
-  const [activeSection, setActiveSection] = useState<string>(menuSections[0].title)
+  const [menuSections, setMenuSections] = useState<MenuSection[]>([])
+  const [activeSection, setActiveSection] = useState<string>("")
   const [searchTerm, setSearchTerm] = useState<string>("")
-  const [filteredSections, setFilteredSections] = useState(menuSections)
-  const [showAdminTerminal, setShowAdminTerminal] = useState(false)
+  const [filteredSections, setFilteredSections] = useState<MenuSection[]>([])
+  const [showAdminTerminal, setShowAdminTerminal] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const menuSectionRef = useRef<HTMLDivElement>(null)
   const categoryRef = useRef<HTMLDivElement>(null)
   const chefRecommendationsRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        const response = await fetch('/api/menu')
+        if (!response.ok) {
+          throw new Error('Error al cargar el menú')
+        }
+        const data = await response.json()
+        setMenuSections(data)
+        setActiveSection(data[0]?.title || "")
+        setFilteredSections(data)
+        setIsLoading(false)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido')
+        setIsLoading(false)
+      }
+    }
+
+    fetchMenuData()
+  }, [])
+
+  useEffect(() => {
+    if (!menuSections.length) return
+
     const filtered = menuSections
       .map((section) => ({
         ...section,
         items: section.items.filter(
           (item) =>
             item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.description?.toLowerCase().includes(searchTerm.toLowerCase()),
+            item.description?.toLowerCase().includes(searchTerm.toLowerCase())
         ),
       }))
       .filter((section) => section.items.length > 0)
-    setFilteredSections(filtered.length > 0 ? filtered : [])
+
+    setFilteredSections(filtered)
 
     if (filtered.length > 0 && !filtered.some((section) => section.title === activeSection)) {
       setActiveSection(filtered[0].title)
     }
-
-    if (searchTerm && filtered.length > 0) {
-      const firstSection = filtered[0]
-      const sectionElement = document.getElementById(firstSection.title)
-      if (sectionElement) {
-        sectionElement.scrollIntoView({ behavior: "smooth", block: "start" })
-      }
-    }
-  }, [searchTerm, activeSection])
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (menuSectionRef.current && categoryRef.current) {
-        const menuBottom = menuSectionRef.current.getBoundingClientRect().bottom
-        const headerHeight = 80
-        categoryRef.current.style.position = menuBottom > headerHeight ? "sticky" : "relative"
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [searchTerm, menuSections, activeSection])
 
   const scrollToSection = (sectionTitle: string) => {
     setActiveSection(sectionTitle)
@@ -110,406 +146,269 @@ const MenuPage: React.FC = () => {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-500"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link href="/" className="flex items-center space-x-2">
-              <motion.div
-                initial={{ rotate: -180, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                transition={{ duration: 0.8 }}
-              >
-                <Image
-                  src="/placeholder.svg?height=40&width=40"
-                  alt="Sol de Oro Logo"
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                  priority
-                />
-              </motion.div>
-              <span className="text-2xl font-heading font-bold bg-gradient-to-r from-amber-700 to-yellow-600 bg-clip-text text-transparent">
-                Sol de Oro
-              </span>
-            </Link>
+        <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image 
+              src="/logo.png" 
+              alt="Logo" 
+              width={40} 
+              height={40} 
+              className="w-10 h-10" 
+              priority
+            />
+            <span className="text-xl font-bold text-amber-600">Sol Restaurant</span>
+          </Link>
 
-            <nav className="hidden md:flex items-center space-x-8">
-              {["Inicio", "Menú", "Nosotros", "Reservas"].map((item) => (
-                <Link
-                  key={item}
-                  href={item === "Menú" ? "#menu" : `/${item.toLowerCase()}`}
-                  className={`${
-                    item === "Menú" ? "text-amber-700 font-medium" : "text-gray-600 hover:text-amber-600"
-                  } transition-colors`}
-                >
-                  {item}
-                </Link>
-              ))}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-600 transition-all shadow-md"
-                onClick={() => setIsCartOpen(true)}
-              >
-                Ordenar Ahora
-              </motion.button>
-            </nav>
-
-            <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Menu">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors"
+            >
+              Ver Pedido
+            </button>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden text-gray-600 hover:text-amber-600"
+              aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
-        </div>
+        </nav>
+      </header>
 
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="md:hidden bg-white border-t border-gray-100"
-            >
-              <div className="px-4 py-2 space-y-1">
-                {["Inicio", "Menú", "Nosotros", "Reservas"].map((item) => (
-                  <Link
-                    key={item}
-                    href={item === "Menú" ? "#menu" : `/${item.toLowerCase()}`}
-                    className={`block py-2 ${
-                      item === "Menú" ? "text-amber-700 font-medium" : "text-gray-600 hover:text-amber-600"
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: "-100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "-100%" }}
+            className="fixed inset-0 z-40 bg-white lg:hidden"
+          >
+            <div className="container mx-auto px-4 py-20">
+              <div className="space-y-8">
+                {menuSections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => {
+                      scrollToSection(section.title)
+                      setIsMenuOpen(false)
+                    }}
+                    className="block w-full text-left text-lg font-medium text-gray-700 hover:text-amber-600"
                   >
-                    {item}
-                  </Link>
+                    {section.title}
+                  </button>
                 ))}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-6xl font-heading font-bold text-gray-900 mb-6 md:mb-8">Nuestro Menú</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 md:mb-16">
-              Descubre nuestra selección de platos tradicionales y especialidades de la casa
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 md:mb-16">
-              <FeaturedCategory
-                title="Pollos a la Brasa"
-                image="/placeholder.svg?height=300&width=400"
-                onClick={() => scrollToSection("Pollos")}
-              />
-              <FeaturedCategory
-                title="Domingos"
-                image="/placeholder.svg?height=300&width=400"
-                onClick={() => scrollToSection("Especiales de Domingo")}
-              />
-              <FeaturedCategory
-                title="Para Compartir"
-                image="/placeholder.svg?height=300&width=400"
-                onClick={() => scrollToSection("Platos para Compartir")}
-              />
-            </div>
-
-            <motion.div
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="max-w-2xl mx-auto"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6"
             >
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={24} />
-                <input
-                  type="text"
-                  placeholder="Buscar platos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500 text-lg shadow-md"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
+              La mejor comida para{" "}
+              <span className="text-amber-600">momentos especiales</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-lg text-gray-600 mb-8"
+            >
+              Descubre nuestra selección de platillos preparados con los mejores
+              ingredientes y el sabor de la cocina casera.
+            </motion.p>
+
+            <div className="relative max-w-xl mx-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar platillos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Menu Section */}
       <div ref={menuSectionRef} className="relative bg-white">
-        <nav ref={categoryRef} className="top-20 bg-white/95 backdrop-blur-sm z-40 border-y border-gray-100 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex overflow-x-auto space-x-4 py-6 category-scroll">
-              {Array.isArray(filteredSections) &&
-                filteredSections.map((section) => (
-                  <motion.button
-                    key={section.title}
-                    onClick={() => scrollToSection(section.title)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-6 py-3 rounded-full whitespace-nowrap transition-colors text-lg font-medium ${
-                      activeSection === section.title
-                        ? "bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-md"
-                        : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {section.title}
-                  </motion.button>
-                ))}
+        <div ref={categoryRef} className="bg-white py-4 top-20 z-30 w-full">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {menuSections.map((section) => (
+                <FeaturedCategory
+                  key={section.id}
+                  title={section.title}
+                  image={section.items[0]?.image || "/placeholder.svg"}
+                  onClick={() => scrollToSection(section.title)}
+                  isActive={activeSection === section.title}
+                />
+              ))}
             </div>
           </div>
-        </nav>
+        </div>
 
-        <section className="py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimatePresence mode="wait">
-              {filteredSections.map(
-                (section) =>
-                  activeSection === section.title && (
-                    <motion.div
-                      key={section.title}
-                      id={section.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                        {section.items.map((item) => (
-                          <MenuCard key={item.name} item={item} />
-                        ))}
-                      </div>
-                    </motion.div>
-                  ),
-              )}
-            </AnimatePresence>
-          </div>
-        </section>
+        <div className="container mx-auto px-4 py-16">
+          {filteredSections.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-gray-600">No se encontraron platillos que coincidan con tu búsqueda.</p>
+            </div>
+          ) : (
+            <div className="space-y-16">
+              {filteredSections.map((section) => (
+                <div key={section.id} id={section.title}>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-8">{section.title}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {section.items.map((item) => (
+                      <MenuCard key={item.id} item={item} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Chef Recommendations Section */}
       <section ref={chefRecommendationsRef} className="py-16 md:py-24 bg-amber-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 md:mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-amber-800 mb-4">
-              Recomendaciones del Chef
-            </h2>
-            <p className="text-xl text-amber-700 max-w-2xl mx-auto">
-              Descubre nuestros platos más populares, cuidadosamente seleccionados por nuestro chef
-            </p>
-          </motion.div>
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+            Recomendaciones del Chef
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.isArray(menuSections) &&
-              menuSections
-                .flatMap((section) => section.items.filter((item) => item.popular))
-                .slice(0, 3)
-                .map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-amber-200"
-                  >
-                    <div className="relative h-64 w-full">
-                      <Image
-                        src={item.image || "/placeholder.svg?height=400&width=300"}
-                        alt={item.name}
-                        className="object-cover"
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority
-                      />
-                      <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
-                        <Star size={16} className="text-amber-500" />
-                        Recomendado
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-heading font-bold mb-2 text-amber-800">{item.name}</h3>
-                      {item.description && <p className="text-amber-700 mb-4 text-sm">{item.description}</p>}
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold text-amber-600">{item.price}</span>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-yellow-500 transition-all shadow-md text-sm font-semibold"
-                          onClick={() => setIsCartOpen(true)}
-                        >
-                          Ordenar Ahora
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+            {menuSections
+              .flatMap((section) => section.items)
+              .filter((item) => item.popular)
+              .map((item) => (
+                <MenuCard key={item.id} item={item} featured />
+              ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 md:mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
-              Testimonios de Nuestros Comensales
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Descubre lo que nuestros clientes dicen sobre su experiencia en Sol de Oro
-            </p>
-          </motion.div>
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
+            Lo que dicen nuestros clientes
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Testimonial
-              text="La mejor comida peruana que he probado. El pollo a la brasa es simplemente increíble."
-              author="María G."
+              text="La mejor pollería de la zona. El sabor es increíble y el servicio excelente."
+              author="María González"
+              delay={0.2}
             />
             <Testimonial
-              text="El ambiente es acogedor y el servicio es excelente. Definitivamente volveré."
-              author="Juan P."
+              text="Las porciones son generosas y la calidad es constante. ¡Volveré!"
+              author="Juan Pérez"
+              delay={0.4}
             />
             <Testimonial
-              text="Los platos para compartir son perfectos para una cena familiar. ¡Altamente recomendado!"
-              author="Ana L."
+              text="El delivery es rápido y la comida llega caliente. Muy recomendado."
+              author="Ana Silva"
+              delay={0.6}
             />
           </div>
-        </div>
-      </section>
-
-      {/* Admin Terminal Section */}
-      <section className="py-16 md:py-24 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 md:mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
-              Terminal de Administrador
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Gestiona los pedidos y visualiza la información en tiempo real
-            </p>
-          </motion.div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="mx-auto block mb-8 bg-amber-600 text-white px-6 py-3 rounded-lg hover:bg-amber-700 transition-colors shadow-md"
-            onClick={() => setShowAdminTerminal(!showAdminTerminal)}
-          >
-            {showAdminTerminal ? "Ocultar Terminal" : "Mostrar Terminal"}
-          </motion.button>
-          <AnimatePresence>
-            {showAdminTerminal && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AdminTerminal />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <div>
-              <h3 className="text-2xl font-heading font-bold text-white mb-4">Sol de Oro</h3>
+              <h3 className="text-xl font-bold text-white mb-4">Sol Restaurant</h3>
               <p className="text-gray-400">
-                Tradición gastronómica desde 1975, ofreciendo la mejor experiencia culinaria en Cerro de Pasco.
+                Ofreciendo la mejor experiencia culinaria desde 2010.
               </p>
             </div>
             <div>
-              <h4 className="text-xl font-heading font-semibold mb-4 text-white">Enlaces Rápidos</h4>
-              <ul className="space-y-2">
-                {["Inicio", "Menú", "Nosotros", "Reservas"].map((item) => (
-                  <li key={item}>
-                    <Link href={`/${item.toLowerCase()}`} className="text-gray-400 hover:text-white transition-colors">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <h4 className="text-lg font-semibold text-white mb-4">Ubicación</h4>
+              <p className="flex items-center text-gray-400 mb-2">
+                <MapPin size={18} className="mr-2" />
+                Av. Principal 123, Lima
+              </p>
+              <p className="flex items-center text-gray-400">
+                <Clock size={18} className="mr-2" />
+                Lun - Dom: 11:00 - 22:00
+              </p>
             </div>
             <div>
-              <h4 className="text-xl font-heading font-semibold mb-4 text-white">Contacto</h4>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <MapPin className="text-gray-400" size={20} />
-                  <p className="text-gray-400">Jr. Hilario Cabrera 120, Yanacancha, Cerro de Pasco</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Clock className="text-gray-400" size={20} />
-                  <p className="text-gray-400">Lunes a Domingo: 11:30 AM - 10:00 PM</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="text-gray-400" size={20} />
-                  <p className="text-gray-400">Reservas vía Messenger</p>
-                </div>
-                <div className="flex space-x-4 mt-6">
-                  <motion.a
-                    href="#"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <Instagram size={24} />
-                  </motion.a>
-                  <motion.a
-                    href="#"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <Facebook size={24} />
-                  </motion.a>
-                </div>
+              <h4 className="text-lg font-semibold text-white mb-4">Contacto</h4>
+              <p className="flex items-center text-gray-400 mb-2">
+                <Phone size={18} className="mr-2" />
+                +51 987 654 321
+              </p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-4">Síguenos</h4>
+              <div className="flex space-x-4">
+                <a 
+                  href="#" 
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="Síguenos en Instagram"
+                >
+                  <Instagram size={24} />
+                </a>
+                <a 
+                  href="#" 
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="Síguenos en Facebook"
+                >
+                  <Facebook size={24} />
+                </a>
               </div>
             </div>
           </div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500"
-          >
-            <p>&copy; {new Date().getFullYear()} Sol de Oro | Todos los derechos reservados.</p>
-          </motion.div>
         </div>
       </footer>
 
+      {/* Cart Component */}
       <Cart />
+
+      {/* Admin Terminal */}
+      {showAdminTerminal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-xl w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
+            <AdminTerminal />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default MenuPage
-

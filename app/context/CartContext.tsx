@@ -1,19 +1,27 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
+import { Decimal } from "@prisma/client/runtime/library"
 
 interface CartItem {
   name: string
-  price: string
+  price: number
+  quantity: number
+}
+
+interface PreparedCartItem {
+  itemName: string
+  price: Decimal
   quantity: number
 }
 
 interface Order {
-  items: CartItem[]
-  total: number
+  items: PreparedCartItem[]
+  totalAmount: Decimal
   customerName: string
   customerPhone: string
-  paymentReceipt: File
+  paymentProof: File
+  status: string
 }
 
 interface CartContextType {
@@ -26,7 +34,7 @@ interface CartContextType {
   getTotalQuantity: () => number
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  createOrder: (customerName: string, customerPhone: string, paymentReceipt: File) => Promise<void>
+  createOrder: (customerName: string, customerPhone: string, paymentProof: File) => Promise<void>
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -37,17 +45,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = useCallback((item: CartItem) => {
     setCart((prevCart) => {
-      if (!Array.isArray(prevCart)) {
-        console.error("Cart is not an array:", prevCart)
-        return [item]
-      }
       const existingItem = prevCart.find((cartItem) => cartItem.name === item.name)
       if (existingItem) {
         return prevCart.map((cartItem) =>
-          cartItem.name === item.name ? { ...cartItem, quantity: cartItem.quantity + item.quantity } : cartItem,
+          cartItem.name === item.name 
+            ? { ...cartItem, quantity: cartItem.quantity + item.quantity } 
+            : cartItem
         )
       }
-      return [...prevCart, { ...item, quantity: item.quantity }]
+      return [...prevCart, item]
     })
   }, [])
 
@@ -57,7 +63,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const updateQuantity = useCallback((itemName: string, quantity: number) => {
     setCart((prevCart) =>
-      prevCart.map((item) => (item.name === itemName ? { ...item, quantity: Math.max(1, quantity) } : item)),
+      prevCart.map((item) => 
+        item.name === itemName 
+          ? { ...item, quantity: Math.max(1, quantity) } 
+          : item
+      )
     )
   }, [])
 
@@ -66,42 +76,55 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const getTotal = useCallback(() => {
-    return cart.reduce((total, item) => {
-      const price = Number.parseFloat(item.price.replace("S/", ""))
-      return total + price * item.quantity
-    }, 0)
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0)
   }, [cart])
 
   const getTotalQuantity = useCallback(() => {
     return cart.reduce((total, item) => total + item.quantity, 0)
   }, [cart])
 
+  const prepareItemsForOrder = useCallback((items: CartItem[]): PreparedCartItem[] => {
+    return items.map(item => ({
+      itemName: item.name,
+      price: new Decimal(item.price.toString()),
+      quantity: item.quantity
+    }))
+  }, [])
+
   const createOrder = useCallback(
-    async (customerName: string, customerPhone: string, paymentReceipt: File): Promise<void> => {
-      const order: Order = {
-        items: [...cart],
-        total: getTotal(),
-        customerName,
-        customerPhone,
-        paymentReceipt,
-      }
-
-      const formData = new FormData()
-      formData.append("customerName", order.customerName)
-      formData.append("customerPhone", order.customerPhone)
-      formData.append("totalAmount", order.total.toString())
-      formData.append("items", JSON.stringify(order.items))
-      formData.append("receipt", order.paymentReceipt)
-
+    async (customerName: string, customerPhone: string, paymentProof: File): Promise<void> => {
       try {
+        if (!customerName.trim()) {
+          throw new Error("El nombre es requerido")
+        }
+
+        if (!/^\d{9}$/.test(customerPhone)) {
+          throw new Error("El número de teléfono debe tener 9 dígitos")
+        }
+
+        if (!paymentProof) {
+          throw new Error("El comprobante de pago es requerido")
+        }
+
+        const preparedItems = prepareItemsForOrder(cart)
+        const totalAmount = new Decimal(getTotal())
+
+        const formData = new FormData()
+        formData.append("customerName", customerName.trim())
+        formData.append("customerPhone", customerPhone)
+        formData.append("totalAmount", totalAmount.toString())
+        formData.append("items", JSON.stringify(preparedItems))
+        formData.append("receipt", paymentProof)
+        formData.append("status", "PENDING")
+
         const response = await fetch("/api/orders", {
           method: "POST",
-          body: formData,
+          body: formData
         })
 
         if (!response.ok) {
-          const errorText = await response.text()
-          throw new Error(`Error del servidor: ${response.status} - ${errorText}`)
+          const errorData = await response.json()
+          throw new Error(errorData.error || `Error del servidor: ${response.status}`)
         }
 
         const result = await response.json()
@@ -109,17 +132,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         if (result.success) {
           clearCart()
           setIsOpen(false)
-          // No mostramos el alert aquí, lo manejaremos en el componente
           return
         } else {
           throw new Error(result.error || "Error desconocido al crear el pedido")
         }
       } catch (error) {
         console.error("Error detallado:", error)
-        throw error // Propagamos el error para manejarlo en el componente
+        throw error
       }
     },
-    [cart, getTotal, clearCart],
+    [cart, getTotal, clearCart, prepareItemsForOrder]
   )
 
   const contextValue = useMemo(
@@ -135,7 +157,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setIsOpen,
       createOrder,
     }),
-    [cart, addToCart, removeFromCart, updateQuantity, clearCart, getTotal, getTotalQuantity, isOpen, createOrder],
+    [cart, addToCart, removeFromCart, updateQuantity, clearCart, getTotal, getTotalQuantity, isOpen, createOrder]
   )
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
@@ -149,3 +171,4 @@ export const useCart = () => {
   return context
 }
 
+export default CartContext

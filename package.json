@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:db": "NODE_OPTIONS='--loader ts-node/esm' node lib/test-db.ts",
+    "test:db": "ts-node lib/test-db.ts",
     "test:cloudinary": "node app/cloudinary-test.js",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
     "push": "prisma db push",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "ts-node --project tsconfig.json app/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
@@ -49,12 +50,11 @@
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "type": "module",
   "prisma": {
     "schema": "./prisma/schema.prisma"
   }

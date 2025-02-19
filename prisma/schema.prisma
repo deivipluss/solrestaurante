@@ -38,3 +38,21 @@ model OrderItem {
   orderId   Int
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
+
+model MenuSection {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String?
+  items       MenuItem[]
+}
+
+model MenuItem {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal     @db.Decimal(10, 2)
+  image       String
+  popular     Boolean     @default(false)
+  sectionId   Int
+  section     MenuSection @relation(fields: [sectionId], references: [id])
+}

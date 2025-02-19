@@ -1,34 +1,37 @@
 "use client"
-
 import type React from "react"
 import { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
 import Image from "next/image"
 import { Star } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import type { MenuItem } from "@/app/menu/types"
 
 interface MenuCardProps {
-  item: {
-    name: string
-    description?: string
-    price: string
-    image?: string
-    popular?: boolean
-  }
+  item: MenuItem
+  featured?: boolean
 }
 
-const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
+const MenuCard: React.FC<MenuCardProps> = ({ item, featured = false }) => {
   const { addToCart } = useCart()
   const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [showConfirmation, setShowConfirmation] = useState(false)
 
+  // Función para formatear el precio
+  const formatPrice = (price: number): string => {
+    return `S/${price.toFixed(2)}`
+  }
+
   const handleAddToCart = () => {
-    addToCart({ name: item.name, price: item.price, quantity })
+    addToCart({
+      name: item.name,
+      price: formatPrice(item.price),
+      quantity
+    })
+    
     setIsQuantityModalOpen(false)
     setQuantity(1)
-
-    // Animación de confirmación
     setShowConfirmation(true)
     setTimeout(() => setShowConfirmation(false), 1000)
   }
@@ -40,7 +43,9 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
+        className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100 ${
+          featured ? 'ring-2 ring-amber-500' : ''
+        }`}
       >
         <div className="relative h-48 w-full">
           <Image
@@ -60,10 +65,18 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
         </div>
 
         <div className="p-5">
-          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">{item.name}</h3>
-          {item.description && <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{item.description}</p>}
+          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
+            {item.name}
+          </h3>
+          {item.description && (
+            <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">
+              {item.description}
+            </p>
+          )}
           <div className="flex justify-between items-center">
-            <span className="text-lg font-bold text-amber-700">{item.price}</span>
+            <span className="text-lg font-bold text-amber-700">
+              {formatPrice(item.price)}
+            </span>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -76,7 +89,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
         </div>
       </motion.div>
 
-      {/* Modal de Cantidad Mejorado */}
+      {/* Modal de Cantidad */}
       <AnimatePresence>
         {isQuantityModalOpen && (
           <motion.div
@@ -91,7 +104,9 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
               exit={{ scale: 0.9 }}
               className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl"
             >
-              <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">Cantidad a ordenar</h3>
+              <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
+                Cantidad a ordenar
+              </h3>
 
               <div className="flex items-center justify-between mb-8">
                 <motion.button
@@ -116,17 +131,14 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
                 </motion.button>
               </div>
 
-              <div className="grid gap-3">
+              <div className="space-y-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{
-                    scale: 0.98,
-                    backgroundColor: "#d97706",
-                  }}
+                  whileTap={{ scale: 0.98 }}
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center relative overflow-hidden"
                   onClick={handleAddToCart}
                 >
-                  <AnimatePresence initial={false}>
+                  <AnimatePresence mode="wait">
                     {showConfirmation ? (
                       <motion.span
                         key="check"
@@ -138,7 +150,11 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
                         ✓
                       </motion.span>
                     ) : (
-                      <motion.span key="text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      <motion.span
+                        key="text"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
                         Confirmar pedido
                       </motion.span>
                     )}
@@ -161,4 +177,3 @@ const MenuCard: React.FC<MenuCardProps> = ({ item }) => {
 }
 
 export default MenuCard
-

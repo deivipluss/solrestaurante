@@ -1,23 +1,16 @@
 export interface MenuItem {
+  id: number
   name: string
-  description?: string
-  price: string
-  image?: string
-  popular?: boolean
+  description: string | null
+  price: number
+  image: string
+  popular: boolean
+  sectionId: number
 }
 
 export interface MenuSection {
+  id: number
   title: string
-  description?: string
+  description: string | null
   items: MenuItem[]
 }
-
-export interface MenuCardProps {
-  item: MenuItem
-}
-
-export interface TestimonialProps {
-  text: string
-  author: string
-}
-

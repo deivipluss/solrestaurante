@@ -5,20 +5,28 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useCart } from "@/app/context/CartContext"
 import { X } from "lucide-react"
+import { Decimal } from "@prisma/client/runtime/library"
 
-// Interfaces for type safety
 interface CartItem {
-  itemName: string;
-  quantity: number;
-  price: number;
+  itemName: string
+  quantity: number
+  price: number
 }
 
 interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onBackToCart: () => void;
-  cartItems: CartItem[];
-  total: number;
+  isOpen: boolean
+  onClose: () => void
+  onBackToCart: () => void
+  cartItems: CartItem[]
+  total: number
+}
+
+interface APIResponse {
+  success: boolean
+  orderId?: number
+  receiptUrl?: string
+  error?: string
+  details?: string
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ 
@@ -34,30 +42,29 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { clearCart } = useCart()
 
-  const handleConfirm = async () => {
-    if (!name || !phone || !receipt) {
-      alert("Por favor, complete todos los campos y adjunte el comprobante de pago.")
-      return
-    }
-
-    // Validaciones
+  const validateForm = (): string | null => {
     if (!name.trim()) {
-      alert("Por favor ingrese un nombre válido")
-      return
+      return "Por favor ingrese un nombre válido"
     }
-
     if (!/^\d{9}$/.test(phone)) {
-      alert("Por favor ingrese un número de teléfono válido (9 dígitos)")
-      return
+      return "Por favor ingrese un número de teléfono válido (9 dígitos)"
     }
-
+    if (!receipt) {
+      return "Por favor adjunte el comprobante de pago"
+    }
     if (!receipt.type.startsWith("image/")) {
-      alert("Por favor, adjunte una imagen válida como comprobante.")
-      return
+      return "Por favor adjunte una imagen válida como comprobante"
     }
-
     if (receipt.size > 4.5 * 1024 * 1024) {
-      alert("El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB")
+      return "El archivo es demasiado grande. El tamaño máximo permitido es 4.5MB"
+    }
+    return null
+  }
+
+  const handleConfirm = async () => {
+    const validationError = validateForm()
+    if (validationError) {
+      alert(validationError)
       return
     }
 
@@ -65,31 +72,39 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
     try {
       const formData = new FormData()
-      formData.append('customerName', name)
+      formData.append('customerName', name.trim())
       formData.append('customerPhone', phone)
-      formData.append('items', JSON.stringify(cartItems))
-      formData.append('totalAmount', total.toString())
-      formData.append('receipt', receipt)
+      
+      const formattedItems = cartItems.map(item => ({
+        itemName: item.itemName,
+        quantity: item.quantity,
+        price: new Decimal(item.price)
+      }))
+      
+      formData.append('items', JSON.stringify(formattedItems))
+      formData.append('totalAmount', new Decimal(total).toString())
+      formData.append('receipt', receipt as File)
+      formData.append('status', 'PENDING')
 
       const response = await fetch('/api/orders', {
         method: 'POST',
         body: formData,
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Error al procesar el pedido')
+      const data: APIResponse = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || data.details || 'Error al procesar el pedido')
       }
 
-      const data = await response.json()
-      
       clearCart()
       onClose()
       alert("¡Pedido realizado con éxito!")
+      
     } catch (error) {
       console.error("Error detallado:", error)
       alert(
-        `Hubo un error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`
+        `Error al procesar su pedido: ${error instanceof Error ? error.message : "Error desconocido"}. Por favor, inténtelo de nuevo.`
       )
     } finally {
       setIsSubmitting(false)
@@ -169,15 +184,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
+                  disabled={isSubmitting}
                 />
                 <input
                   type="tel"
                   placeholder="Tu número de WhatsApp"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
                   pattern="[0-9]{9}"
                   maxLength={9}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
+                  disabled={isSubmitting}
                 />
                 <div>
                   <label htmlFor="receipt" className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,6 +206,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     accept="image/*"
                     onChange={(e) => setReceipt(e.target.files ? e.target.files[0] : null)}
                     className="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-700"
+                    disabled={isSubmitting}
                   />
                   <p className="mt-1 text-xs text-gray-500">Tamaño máximo: 4.5MB</p>
                 </div>
@@ -197,9 +215,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
             <div className="mt-6 space-y-4">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all disabled:opacity-50"
+                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                className="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-white py-4 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-yellow-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleConfirm}
                 disabled={isSubmitting}
               >
@@ -207,9 +225,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </motion.button>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-lg hover:bg-gray-300 transition-all"
+                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-medium text-lg hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={onBackToCart}
                 disabled={isSubmitting}
               >
