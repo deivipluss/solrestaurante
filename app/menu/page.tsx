@@ -1,5 +1,6 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
@@ -17,7 +18,6 @@ import {
 import { useCart } from "@/app/context/CartContext"
 import Cart from "@/app/components/Cart"
 import MenuCard from "@/app/components/MenuCard"
-import AdminTerminal from "@/app/terminal/page"
 import type { MenuSection, MenuItem } from './types'
 
 const FeaturedCategory: React.FC<{ 
@@ -79,7 +79,6 @@ const MenuPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>("")
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [filteredSections, setFilteredSections] = useState<MenuSection[]>([])
-  const [showAdminTerminal, setShowAdminTerminal] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -87,47 +86,72 @@ const MenuPage: React.FC = () => {
   const categoryRef = useRef<HTMLDivElement>(null)
   const chefRecommendationsRef = useRef<HTMLElement>(null)
 
-  useEffect(() => {
-    const fetchMenuData = async () => {
-      try {
-        const response = await fetch('/api/menu')
-        if (!response.ok) {
-          throw new Error('Error al cargar el menú')
+  const fetchMenuData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/menu', {
+        headers: {
+          'Cache-Control': 'no-cache'
         }
-        const data = await response.json()
-        setMenuSections(data)
-        setActiveSection(data[0]?.title || "")
-        setFilteredSections(data)
-        setIsLoading(false)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido')
-        setIsLoading(false)
-      }
-    }
+      })
 
+      if (!response.ok) {
+        throw new Error(`Error al cargar el menú: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Formato de datos incorrecto')
+      }
+
+      const formattedData = data.map(section => ({
+        ...section,
+        items: section.items.map(item => ({
+          ...item,
+          price: Number(item.price)
+        }))
+      }))
+
+      setMenuSections(formattedData)
+      setActiveSection(formattedData[0]?.title || "")
+      setFilteredSections(formattedData)
+      setIsLoading(false)
+    } catch (err) {
+      console.error('Error al cargar el menú:', err)
+      setError(err instanceof Error ? err.message : 'Error desconocido')
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
     fetchMenuData()
+    const intervalId = setInterval(fetchMenuData, 60000)
+    return () => clearInterval(intervalId)
+  }, [fetchMenuData])
+
+  const filterMenuItems = useCallback((sections: MenuSection[], term: string): MenuSection[] => {
+    if (!term.trim()) return sections
+
+    return sections
+      .map(section => ({
+        ...section,
+        items: section.items.filter(item =>
+          item.name.toLowerCase().includes(term.toLowerCase()) ||
+          item.description?.toLowerCase().includes(term.toLowerCase())
+        )
+      }))
+      .filter(section => section.items.length > 0)
   }, [])
 
   useEffect(() => {
     if (!menuSections.length) return
-
-    const filtered = menuSections
-      .map((section) => ({
-        ...section,
-        items: section.items.filter(
-          (item) =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        ),
-      }))
-      .filter((section) => section.items.length > 0)
-
+    const filtered = filterMenuItems(menuSections, searchTerm)
     setFilteredSections(filtered)
 
-    if (filtered.length > 0 && !filtered.some((section) => section.title === activeSection)) {
+    if (filtered.length > 0 && !filtered.some(section => section.title === activeSection)) {
       setActiveSection(filtered[0].title)
     }
-  }, [searchTerm, menuSections, activeSection])
+  }, [searchTerm, menuSections, activeSection, filterMenuItems])
 
   const scrollToSection = (sectionTitle: string) => {
     setActiveSection(sectionTitle)
@@ -157,14 +181,21 @@ const MenuPage: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">Error: {error}</div>
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">Error: {error}</div>
+          <button 
+            onClick={fetchMenuData}
+            className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm">
         <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
@@ -197,7 +228,6 @@ const MenuPage: React.FC = () => {
         </nav>
       </header>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -226,7 +256,6 @@ const MenuPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Hero Section */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -262,7 +291,6 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Menu Section */}
       <div ref={menuSectionRef} className="relative bg-white">
         <div ref={categoryRef} className="bg-white py-4 top-20 z-30 w-full">
           <div className="container mx-auto px-4">
@@ -302,7 +330,6 @@ const MenuPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Chef Recommendations Section */}
       <section ref={chefRecommendationsRef} className="py-16 md:py-24 bg-amber-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
@@ -319,7 +346,6 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
@@ -345,7 +371,6 @@ const MenuPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -396,17 +421,7 @@ const MenuPage: React.FC = () => {
         </div>
       </footer>
 
-      {/* Cart Component */}
       <Cart />
-
-      {/* Admin Terminal */}
-      {showAdminTerminal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white rounded-xl w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
-            <AdminTerminal />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

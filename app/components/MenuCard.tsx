@@ -1,4 +1,5 @@
 "use client"
+
 import type React from "react"
 import { useState } from "react"
 import { useCart } from "@/app/context/CartContext"
@@ -18,7 +19,6 @@ const MenuCard: React.FC<MenuCardProps> = ({ item, featured = false }) => {
   const [quantity, setQuantity] = useState(1)
   const [showConfirmation, setShowConfirmation] = useState(false)
 
-  // Función para formatear el precio
   const formatPrice = (price: number): string => {
     return `S/${price.toFixed(2)}`
   }
@@ -26,7 +26,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ item, featured = false }) => {
   const handleAddToCart = () => {
     addToCart({
       name: item.name,
-      price: formatPrice(item.price),
+      price: item.price,
       quantity
     })
     
@@ -38,7 +38,6 @@ const MenuCard: React.FC<MenuCardProps> = ({ item, featured = false }) => {
 
   return (
     <>
-      {/* Tarjeta del Producto */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -89,7 +88,6 @@ const MenuCard: React.FC<MenuCardProps> = ({ item, featured = false }) => {
         </div>
       </motion.div>
 
-      {/* Modal de Cantidad */}
       <AnimatePresence>
         {isQuantityModalOpen && (
           <motion.div
