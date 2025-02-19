@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useCart } from "@/app/context/CartContext"
 import { X } from "lucide-react"
-import { Decimal } from "@prisma/client/runtime/library"
+import { Decimal } from "@/app/utils/decimal"
 
 interface CartItem {
   itemName: string
